@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { Trip, Event, Post, Comment } from "@/types";
+import { Trip, Event, Post, Comment, JoinRequest, ChatMessage } from "@/types";
 
 interface DataContextType {
   trips: Trip[];
@@ -17,6 +17,17 @@ interface DataContextType {
   addPost: (post: Post) => void;
   deletePost: (postId: string) => void;
   addComment: (postId: string, comment: Comment) => void;
+  // Group join request system
+  requestToJoinTrip: (tripId: string, request: JoinRequest) => void;
+  approveJoinTrip: (tripId: string, userId: string) => void;
+  rejectJoinTrip: (tripId: string, userId: string) => void;
+  removeFromTrip: (tripId: string, userId: string) => void;
+  sendTripMessage: (tripId: string, message: ChatMessage) => void;
+  requestToJoinEvent: (eventId: string, request: JoinRequest) => void;
+  approveJoinEvent: (eventId: string, userId: string) => void;
+  rejectJoinEvent: (eventId: string, userId: string) => void;
+  removeFromEvent: (eventId: string, userId: string) => void;
+  sendEventMessage: (eventId: string, message: ChatMessage) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -77,8 +88,114 @@ export function DataProvider({ children }: { children: ReactNode }) {
     savePosts(posts.map(p => p.id === postId ? { ...p, comments: [...p.comments, comment] } : p));
   };
 
+  // ── Trip join request system ─────────────────────────────────────────────────
+  const requestToJoinTrip = (tripId: string, request: JoinRequest) => {
+    saveTrips(trips.map(t => {
+      if (t.id !== tripId) return t;
+      const existing = (t.pendingRequests ?? []).find(r => r.userId === request.userId);
+      if (existing) return t;
+      return { ...t, pendingRequests: [...(t.pendingRequests ?? []), request] };
+    }));
+  };
+
+  const approveJoinTrip = (tripId: string, userId: string) => {
+    saveTrips(trips.map(t => {
+      if (t.id !== tripId) return t;
+      return {
+        ...t,
+        joinedUsers: t.joinedUsers.includes(userId) ? t.joinedUsers : [...t.joinedUsers, userId],
+        pendingRequests: (t.pendingRequests ?? []).map(r =>
+          r.userId === userId ? { ...r, status: "approved" as const } : r),
+      };
+    }));
+  };
+
+  const rejectJoinTrip = (tripId: string, userId: string) => {
+    saveTrips(trips.map(t => {
+      if (t.id !== tripId) return t;
+      return {
+        ...t,
+        pendingRequests: (t.pendingRequests ?? []).map(r =>
+          r.userId === userId ? { ...r, status: "rejected" as const } : r),
+      };
+    }));
+  };
+
+  const removeFromTrip = (tripId: string, userId: string) => {
+    saveTrips(trips.map(t => {
+      if (t.id !== tripId) return t;
+      return {
+        ...t,
+        joinedUsers: t.joinedUsers.filter(u => u !== userId),
+        pendingRequests: (t.pendingRequests ?? []).filter(r => r.userId !== userId),
+      };
+    }));
+  };
+
+  const sendTripMessage = (tripId: string, message: ChatMessage) => {
+    saveTrips(trips.map(t => t.id === tripId
+      ? { ...t, chatMessages: [...(t.chatMessages ?? []), message] } : t));
+  };
+
+  // ── Event join request system ────────────────────────────────────────────────
+  const requestToJoinEvent = (eventId: string, request: JoinRequest) => {
+    saveEvents(events.map(e => {
+      if (e.id !== eventId) return e;
+      const existing = (e.pendingRequests ?? []).find(r => r.userId === request.userId);
+      if (existing) return e;
+      return { ...e, pendingRequests: [...(e.pendingRequests ?? []), request] };
+    }));
+  };
+
+  const approveJoinEvent = (eventId: string, userId: string) => {
+    saveEvents(events.map(e => {
+      if (e.id !== eventId) return e;
+      return {
+        ...e,
+        attendees: e.attendees.includes(userId) ? e.attendees : [...e.attendees, userId],
+        pendingRequests: (e.pendingRequests ?? []).map(r =>
+          r.userId === userId ? { ...r, status: "approved" as const } : r),
+      };
+    }));
+  };
+
+  const rejectJoinEvent = (eventId: string, userId: string) => {
+    saveEvents(events.map(e => {
+      if (e.id !== eventId) return e;
+      return {
+        ...e,
+        pendingRequests: (e.pendingRequests ?? []).map(r =>
+          r.userId === userId ? { ...r, status: "rejected" as const } : r),
+      };
+    }));
+  };
+
+  const removeFromEvent = (eventId: string, userId: string) => {
+    saveEvents(events.map(e => {
+      if (e.id !== eventId) return e;
+      return {
+        ...e,
+        attendees: e.attendees.filter(u => u !== userId),
+        pendingRequests: (e.pendingRequests ?? []).filter(r => r.userId !== userId),
+      };
+    }));
+  };
+
+  const sendEventMessage = (eventId: string, message: ChatMessage) => {
+    saveEvents(events.map(e => e.id === eventId
+      ? { ...e, chatMessages: [...(e.chatMessages ?? []), message] } : e));
+  };
+
   return (
-    <DataContext.Provider value={{ trips, events, posts, addTrip, addEvent, joinTrip, leaveTrip, registerEvent, unregisterEvent, likePost, addPost, deletePost, addComment }}>
+    <DataContext.Provider value={{
+      trips, events, posts,
+      addTrip, addEvent,
+      joinTrip, leaveTrip,
+      registerEvent, unregisterEvent,
+      likePost, addPost, deletePost, addComment,
+      requestToJoinTrip, approveJoinTrip, rejectJoinTrip, removeFromTrip, sendTripMessage,
+      requestToJoinEvent, approveJoinEvent, rejectJoinEvent, removeFromEvent, sendEventMessage,
+    }}>
       {children}
     </DataContext.Provider>
   );

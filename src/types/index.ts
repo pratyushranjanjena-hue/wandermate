@@ -52,6 +52,24 @@ export interface User {
   onboardingDone?: boolean;
 }
 
+export interface JoinRequest {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  requestedAt: string;
+  status: "pending" | "approved" | "rejected";
+}
+
+export interface ChatMessage {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  text: string;
+  sentAt: string;
+}
+
 export interface Trip {
   id: string;
   title: string;
@@ -76,6 +94,8 @@ export interface Trip {
   photoUrl?: string;
   genderPreference?: "Everyone" | "Males Only" | "Females Only" | "Couples" | "Mixed Groups";
   ageGroups?: string[];
+  pendingRequests?: JoinRequest[];
+  chatMessages?: ChatMessage[];
 }
 
 export interface Event {
@@ -93,6 +113,8 @@ export interface Event {
   photoUrl?: string;
   badge: string | null;
   description: string;
+  pendingRequests?: JoinRequest[];
+  chatMessages?: ChatMessage[];
 }
 
 export interface Post {

@@ -6,8 +6,6 @@ import Image from "next/image";
 import { Calendar, MapPin, Users, Ticket, Flame, Search } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/context/ToastContext";
-import AuthModal from "@/components/AuthModal";
 
 const EVENT_TYPES = [
   { label: "All Events", emoji: "✨" },
@@ -50,12 +48,10 @@ function getPhoto(type: string) {
 }
 
 export default function EventsPage() {
-  const { events, registerEvent, unregisterEvent } = useData();
+  const { events } = useData();
   const { user } = useAuth();
-  const { showToast } = useToast();
   const [activeType, setActiveType] = useState("All Events");
   const [query, setQuery] = useState("");
-  const [showAuth, setShowAuth] = useState(false);
 
   const filtered = events.filter(e => {
     const matchType = activeType === "All Events" || e.type === activeType;
@@ -63,14 +59,6 @@ export default function EventsPage() {
     return matchType && matchQuery;
   });
 
-  const handleRegister = (eventId: string) => {
-    if (!user) { setShowAuth(true); return; }
-    const event = events.find(e => e.id === eventId);
-    if (!event) return;
-    if (event.attendees.includes(user.id)) { unregisterEvent(eventId, user.id); showToast("Registration cancelled.", "info"); }
-    else if (event.attendees.length >= event.maxAttendees) { showToast("This event is full!", "error"); }
-    else { registerEvent(eventId, user.id); showToast(`Registered for "${event.title}"! 🎉`); }
-  };
 
   const thisWeek = filtered.filter(e => e.badge === "Featured" || e.badge === "New").slice(0, 3);
 
@@ -193,12 +181,13 @@ export default function EventsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map(event => {
             const registered = user ? event.attendees.includes(user.id) : false;
+            const pending = user ? (event.pendingRequests ?? []).some(r => r.userId === user.id && r.status === "pending") : false;
             const full = event.attendees.length >= event.maxAttendees;
             const fillPct = (event.attendees.length / event.maxAttendees) * 100;
             return (
               <div key={event.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
                 {/* Photo */}
-                <div className="relative h-48 overflow-hidden">
+                <Link href={`/events/${event.id}`} className="block relative h-48 overflow-hidden">
                   {event.photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={event.photoUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -212,14 +201,14 @@ export default function EventsPage() {
                     </span>
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${event.price === "Free" ? "bg-green-500 text-white" : "bg-gray-800/80 text-white"}`}>{event.price}</span>
                   </div>
-                  {event.badge && (
+                  {event.badge && !registered && (
                     <span className={`absolute top-3 right-3 text-xs font-bold px-2 py-0.5 rounded-full ${event.badge === "Featured" ? "bg-teal-500 text-white" : event.badge === "New" ? "bg-green-500 text-white" : "bg-orange-500 text-white"}`}>{event.badge}</span>
                   )}
-                  {registered && <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">✓ Registered</span>}
+                  {registered && <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">✓ Attending</span>}
                   <div className="absolute bottom-3 left-3 right-3">
                     <h3 className="font-bold text-white text-base leading-tight drop-shadow">{event.title}</h3>
                   </div>
-                </div>
+                </Link>
 
                 <div className="p-4">
                   <div className="space-y-1.5 mb-3">
@@ -239,18 +228,22 @@ export default function EventsPage() {
                     </div>
                   </div>
 
-                  <button onClick={() => handleRegister(event.id)} disabled={full && !registered}
-                    className={`w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl text-sm transition-colors ${registered ? "bg-green-50 border border-green-300 text-green-700 hover:bg-red-50 hover:text-red-600 hover:border-red-300" : full ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700 text-white"}`}>
-                    <Ticket className="w-4 h-4" />
-                    {registered ? "✓ Registered — Click to Cancel" : full ? "Event Full" : "Register Now"}
-                  </button>
+                  <div className="flex gap-2">
+                    <Link href={`/events/${event.id}`} className="flex-1 text-center border border-gray-200 text-gray-700 hover:border-purple-300 hover:text-purple-600 text-sm font-semibold py-2.5 rounded-xl transition-colors">
+                      View Details
+                    </Link>
+                    <Link href={`/events/${event.id}`}
+                      className={`flex-1 text-center flex items-center justify-center gap-1.5 font-semibold py-2.5 rounded-xl text-sm transition-colors ${registered ? "bg-green-50 border border-green-300 text-green-700" : pending ? "bg-amber-50 border border-amber-200 text-amber-700" : full ? "bg-gray-100 text-gray-400 pointer-events-none" : "bg-purple-600 hover:bg-purple-700 text-white"}`}>
+                      <Ticket className="w-3.5 h-3.5" />
+                      {registered ? "✓ Attending" : pending ? "⏳ Pending" : full ? "Full" : "Request →"}
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultTab="signup" />}
     </div>
   );
 }

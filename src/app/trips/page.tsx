@@ -6,8 +6,6 @@ import Image from "next/image";
 import { MapPin, Calendar, Users, Star, Search, SlidersHorizontal, X, ArrowRight, Flame, TrendingUp } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/context/ToastContext";
-import AuthModal from "@/components/AuthModal";
 
 const TYPES = [
   { label: "All", emoji: "✨" },
@@ -80,13 +78,11 @@ function getPhotoUrl(type: string, w = 600, h = 400) {
 }
 
 export default function TripsPage() {
-  const { trips, joinTrip, leaveTrip } = useData();
+  const { trips } = useData();
   const { user } = useAuth();
-  const { showToast } = useToast();
 
   const [query, setQuery] = useState("");
   const [activeType, setActiveType] = useState("All");
-  const [showAuth, setShowAuth] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedState, setSelectedState] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
@@ -125,14 +121,6 @@ export default function TripsPage() {
     return true;
   });
 
-  const handleJoin = (tripId: string) => {
-    if (!user) { setShowAuth(true); return; }
-    const trip = trips.find(t => t.id === tripId);
-    if (!trip) return;
-    if (trip.joinedUsers.includes(user.id)) { leaveTrip(tripId, user.id); showToast("You've left the activity.", "info"); }
-    else if (trip.joinedUsers.length >= trip.totalSpots) { showToast("Sorry, this trip is full!", "error"); }
-    else { joinTrip(tripId, user.id); showToast(`You've joined "${trip.title}"! 🎉`); }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -320,6 +308,7 @@ export default function TripsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map(trip => {
             const joined = user ? trip.joinedUsers.includes(user.id) : false;
+            const pending = user ? (trip.pendingRequests ?? []).some(r => r.userId === user.id && r.status === "pending") : false;
             const full = trip.joinedUsers.length >= trip.totalSpots;
             const fillPct = (trip.joinedUsers.length / trip.totalSpots) * 100;
             const isHot = fillPct >= 70;
@@ -396,10 +385,10 @@ export default function TripsPage() {
                     <Link href={`/trips/${trip.id}`} className="flex-1 text-center border border-gray-200 text-gray-700 hover:border-teal-300 hover:text-teal-600 text-sm font-semibold py-2.5 rounded-xl transition-colors">
                       View Details
                     </Link>
-                    <button onClick={() => handleJoin(trip.id)} disabled={full && !joined}
-                      className={`flex-1 font-semibold py-2.5 rounded-xl text-sm transition-colors ${joined ? "bg-green-50 border border-green-300 text-green-700 hover:bg-red-50 hover:text-red-600 hover:border-red-300" : full ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-teal-600 hover:bg-teal-700 text-white"}`}>
-                      {joined ? "✓ Joined" : full ? "Full" : "Join →"}
-                    </button>
+                    <Link href={`/trips/${trip.id}`}
+                      className={`flex-1 text-center font-semibold py-2.5 rounded-xl text-sm transition-colors ${joined ? "bg-green-50 border border-green-300 text-green-700" : pending ? "bg-amber-50 border border-amber-200 text-amber-700" : full ? "bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none" : "bg-teal-600 hover:bg-teal-700 text-white"}`}>
+                      {joined ? "✓ In Group" : pending ? "⏳ Pending" : full ? "Full" : "Request →"}
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -407,7 +396,6 @@ export default function TripsPage() {
           })}
         </div>
       </div>
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultTab="signup" />}
     </div>
   );
 }
