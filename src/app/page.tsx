@@ -210,7 +210,7 @@ export default function Home() {
                   </Link>
                 </div>
                 <div className="grid grid-cols-4 gap-6 max-w-sm">
-                  {[["12,400+", "Travelers"], ["840+", "Trips"], ["120+", "Destinations"], ["4.8★", "Rating"]].map(([v, l]) => (
+                  {[["🚀", "Just Launched"], ["Free", "To Join"], ["India", "Wide Trips"], ["Open", "Beta"]].map(([v, l]) => (
                     <div key={l}><p className="text-2xl font-extrabold text-white">{v}</p><p className="text-teal-300/80 text-xs mt-0.5">{l}</p></div>
                   ))}
                 </div>
@@ -435,7 +435,7 @@ export default function Home() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-6">
                     <div className="text-4xl mb-2">🌍</div>
                     <h3 className="text-xl font-extrabold mb-1">Ready to Explore?</h3>
-                    <p className="text-teal-100 text-sm mb-4">Join 12,400+ travelers who found their group</p>
+                    <p className="text-teal-100 text-sm mb-4">Be among the first to join WanderMate — just launched!</p>
                     <div className="flex gap-3">
                       <Link href="/trips" className="bg-white text-teal-700 hover:bg-teal-50 font-bold py-2 px-5 rounded-full transition-colors text-sm">Browse Trips →</Link>
                       <Link href="/trips/new" className="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold py-2 px-5 rounded-full transition-colors text-sm">Host a Trip</Link>
