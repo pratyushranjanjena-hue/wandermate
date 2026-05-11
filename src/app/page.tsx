@@ -170,68 +170,102 @@ export default function Home() {
         {/* ════ SLIDE 1 — HERO ════ */}
         <div
           ref={el => { slideRefs.current[0] = el; }}
-          className="w-full relative overflow-hidden"
+          className="w-full relative overflow-hidden flex"
           style={{ height: H, scrollSnapAlign: "start" }}
         >
-          <div className="absolute inset-0">
-            <Image src={hs.bg} alt={hs.title} fill className="object-cover transition-opacity duration-700" priority unoptimized />
-            <div className={`absolute inset-0 bg-gradient-to-r ${hs.color}`} />
-            <div className="absolute inset-0 bg-black/30" />
-          </div>
+          {/* ── LEFT HALF — dark manifesto, fixed ── */}
+          <div className="relative z-10 w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 py-10"
+            style={{ background: "linear-gradient(135deg, #0f172a 0%, #0d3d38 100%)" }}>
 
-          <div className="relative z-10 h-full flex items-center">
-            <div className="max-w-6xl mx-auto px-6 w-full">
-              <div className="max-w-2xl">
-                <div className="flex items-center gap-3 mb-5">
-                  <span className="bg-teal-500/90 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">WanderMate</span>
-                  <span className="text-white/60 text-xs border border-white/20 px-2.5 py-1 rounded-full">🇮🇳 Free · Open Beta</span>
-                </div>
-                <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-3 drop-shadow-lg">
-                  Stop waiting for<br />
-                  <span className="bg-gradient-to-r from-teal-400 to-emerald-300 bg-clip-text text-transparent">someone to say yes.</span>
-                </h1>
-                <p className="text-base text-white/70 mb-5">
-                  India&apos;s community for people who want to camp, trek, eat, play, create &amp; explore — with others who actually show up.
-                </p>
-                {/* What you can do — 3 benefit rows */}
-                <div className="flex flex-col gap-3 mb-8">
-                  {[
-                    { icon: "🔍", bold: "Find activities near you", desc: "Camping, treks, food walks, sports, cycling, social meetups — filter by city, budget & age group." },
-                    { icon: "🤝", bold: "Meet people, not strangers", desc: "Join groups hosted by real verified people. See who's coming before you say yes." },
-                    { icon: "✍️", bold: "Share your experience", desc: "Post blogs, photos & videos. Build your explorer profile and inspire your next crew." },
-                  ].map(({ icon, bold, desc }) => (
-                    <div key={bold} className="flex items-start gap-3 bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-3">
-                      <span className="text-xl shrink-0 mt-0.5">{icon}</span>
-                      <p className="text-sm text-white/90 leading-snug">
-                        <span className="font-bold text-white">{bold} — </span>{desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+            {/* subtle dot texture */}
+            <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
 
-                <div className="flex flex-wrap gap-4">
-                  <Link href="/trips" className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 py-4 rounded-full text-lg transition-all shadow-xl hover:scale-105">
-                    Explore Activities <ArrowRight className="w-5 h-5" />
-                  </Link>
-                  <Link href="/trips/new" className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold px-8 py-4 rounded-full text-lg transition-all backdrop-blur-sm">
-                    Host an Activity
-                  </Link>
-                </div>
+            <div className="relative z-10 max-w-lg">
+              <div className="inline-flex items-center gap-2 bg-teal-500/15 border border-teal-500/30 text-teal-400 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-widest">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" /> India&apos;s Activity Community
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-5">
+                <span className="text-white">Your friends said </span>
+                <span className="text-red-400 line-through opacity-70">&ldquo;maybe&rdquo;</span>
+                <span className="text-white">.<br />We said </span>
+                <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">&ldquo;let&apos;s go.&rdquo;</span>
+              </h1>
+
+              <p className="text-gray-300 text-base leading-relaxed mb-6">
+                WanderMate connects real people across India who want to <strong className="text-white">camp, trek, eat, play, create &amp; explore</strong> — with others who actually show up.
+              </p>
+
+              {/* 3 benefit rows */}
+              <div className="flex flex-col gap-2.5 mb-7">
+                {[
+                  { icon: "🔍", bold: "Find activities near you", desc: "Camping, treks, food walks, sports & more — filter by city, budget & age group." },
+                  { icon: "🤝", bold: "Meet people, not strangers", desc: "See who's joining before you say yes. Real profiles, real people." },
+                  { icon: "✍️", bold: "Share your experience", desc: "Post blogs, photos & videos. Build your explorer profile." },
+                ].map(({ icon, bold, desc }) => (
+                  <div key={bold} className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
+                    <span className="text-lg shrink-0 mt-0.5">{icon}</span>
+                    <p className="text-sm text-white/80 leading-snug">
+                      <span className="font-bold text-white">{bold} — </span>{desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Link href="/trips" className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-7 py-3.5 rounded-full text-sm transition-all shadow-lg shadow-teal-500/30 hover:scale-105">
+                  Explore Activities <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/trips/new" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-7 py-3.5 rounded-full text-sm transition-all">
+                  Host an Activity
+                </Link>
               </div>
             </div>
           </div>
 
-          <div className="absolute bottom-8 left-6 z-20 flex gap-2">
-            {HERO_SLIDES.map((s, i) => (
-              <button key={s.id} onClick={() => setHeroSlide(i)}
-                className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${i === heroSlide ? "border-white w-20 h-14" : "border-white/30 w-14 h-10 opacity-60 hover:opacity-90"}`}>
-                <Image src={s.bg} alt={s.title} fill className="object-cover" unoptimized />
-                {i === heroSlide && <div className="absolute inset-0 bg-teal-500/20" />}
-              </button>
-            ))}
+          {/* ── RIGHT HALF — rotating photo with caption ── */}
+          <div className="hidden lg:block relative w-1/2 overflow-hidden">
+            <Image src={hs.bg} alt={hs.title} fill className="object-cover transition-all duration-700" priority unoptimized />
+            {/* dark gradient so caption is readable */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+            {/* Caption overlay — bottom left */}
+            <div className="absolute bottom-0 left-0 right-0 p-8">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">{hs.tag}</span>
+                <span className="text-white/70 text-sm flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" />{hs.location}
+                </span>
+              </div>
+              <h2 className="text-3xl font-extrabold text-white leading-tight mb-1 drop-shadow-lg">{hs.title}</h2>
+              <p className="text-white/70 text-sm mb-4">{hs.subtitle}</p>
+              <div className="flex items-center gap-3">
+                <span className="text-white/60 text-xs">{hs.meta}</span>
+                <span className="w-1 h-1 rounded-full bg-white/40" />
+                <span className="bg-green-400/20 text-green-300 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-400/30">{hs.spots}</span>
+              </div>
+            </div>
+
+            {/* Slide thumbnails — bottom right */}
+            <div className="absolute bottom-8 right-6 z-20 flex gap-2">
+              {HERO_SLIDES.map((s, i) => (
+                <button key={s.id} onClick={() => setHeroSlide(i)}
+                  className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 ${i === heroSlide ? "border-white w-16 h-11" : "border-white/30 w-11 h-8 opacity-60 hover:opacity-90"}`}>
+                  <Image src={s.bg} alt={s.title} fill className="object-cover" unoptimized />
+                  {i === heroSlide && <div className="absolute inset-0 bg-teal-500/20" />}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <button className="absolute bottom-8 right-6 z-20 flex flex-col items-center gap-1 text-white/50 animate-bounce" onClick={() => scrollToSlide(1)}>
+          {/* scroll hint — only on mobile where right panel is hidden */}
+          <button className="lg:hidden absolute bottom-6 right-6 z-20 flex flex-col items-center gap-1 text-white/50 animate-bounce" onClick={() => scrollToSlide(1)}>
+            <span className="text-xs font-medium">Scroll</span>
+            <ChevronDown className="w-4 h-4" />
+          </button>
+
+          {/* scroll hint on desktop */}
+          <button className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-1 text-white/40 animate-bounce" onClick={() => scrollToSlide(1)}>
             <span className="text-xs font-medium">Scroll</span>
             <ChevronDown className="w-4 h-4" />
           </button>
