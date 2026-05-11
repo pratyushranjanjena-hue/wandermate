@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ArrowRight, MapPin, ChevronDown, ChevronUp, Users, Shield, Camera, Bike, BookOpen, Mail, Phone, MessageCircle, Send, CheckCircle } from "lucide-react";
+import { ArrowRight, MapPin, ChevronDown, ChevronUp, Users, Shield, Camera, Bike, BookOpen, Mail, Phone, MessageCircle, Send, CheckCircle, LogIn } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import AuthModal from "@/components/AuthModal";
 
 const U = (id: string, w = 1400, h = 900) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&auto=format&q=80`;
@@ -74,17 +76,19 @@ const SLIDES = [
 const H = "calc(100vh - 64px)";
 
 function ContactForm() {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const { user } = useAuth();
+  const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return;
-    const subject = encodeURIComponent(`mayBE enquiry from ${form.name}`);
-    const body = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`);
+    if (!user || !message.trim()) return;
+    const subject = encodeURIComponent(`mayBE enquiry from ${user.name}`);
+    const body = encodeURIComponent(`Name: ${user.name}\nEmail: ${user.email}\n\n${message}`);
     window.open(`mailto:pratyushjena1994@gmail.com?subject=${subject}&body=${body}`, "_blank");
     setSent(true);
-    setTimeout(() => { setSent(false); setForm({ name: "", email: "", message: "" }); }, 4000);
+    setTimeout(() => { setSent(false); setMessage(""); }, 4000);
   };
 
   return (
@@ -97,39 +101,45 @@ function ContactForm() {
           <div className="w-14 h-14 rounded-full bg-teal-500/20 border border-teal-500/30 flex items-center justify-center">
             <CheckCircle className="w-7 h-7 text-teal-400" />
           </div>
-          <p className="text-white font-bold text-lg">Message ready!</p>
+          <p className="text-white font-bold text-lg">Message sent!</p>
           <p className="text-gray-400 text-sm text-center">Your email client should have opened. We&apos;ll reply soon!</p>
+        </div>
+      ) : !user ? (
+        <div className="flex flex-col items-center justify-center py-10 gap-4 text-center">
+          <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+            <LogIn className="w-6 h-6 text-teal-400" />
+          </div>
+          <div>
+            <p className="text-white font-bold text-base">Login to send a message</p>
+            <p className="text-gray-400 text-xs mt-1">We&apos;ll use your account details so you don&apos;t have to type them again.</p>
+          </div>
+          <button onClick={() => setShowAuth(true)}
+            className="flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-6 py-2.5 rounded-full text-sm transition-all hover:scale-105">
+            <LogIn className="w-4 h-4" /> Sign In / Join Free
+          </button>
+          {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultTab="login" />}
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          {/* Show logged-in user info — read only */}
+          <div className="flex items-center gap-3 bg-white/8 border border-white/15 rounded-xl px-4 py-2.5">
+            <span className="text-xl">{user.avatar}</span>
             <div>
-              <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Your name</label>
-              <input
-                value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="Priya Sharma"
-                className="w-full bg-white/8 border border-white/15 text-white placeholder:text-white/30 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30"
-              />
+              <p className="text-white text-sm font-semibold leading-none">{user.name}</p>
+              <p className="text-gray-400 text-xs mt-0.5">{user.email}</p>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Email</label>
-              <input
-                type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                placeholder="you@email.com"
-                className="w-full bg-white/8 border border-white/15 text-white placeholder:text-white/30 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30"
-              />
-            </div>
+            <span className="ml-auto text-xs bg-teal-500/20 text-teal-400 border border-teal-500/30 px-2 py-0.5 rounded-full font-semibold">Logged in</span>
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Message</label>
             <textarea
-              rows={4} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+              rows={4} value={message} onChange={e => setMessage(e.target.value)}
               placeholder="Tell us what's on your mind..."
               className="w-full bg-white/8 border border-white/15 text-white placeholder:text-white/30 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30 resize-none"
             />
           </div>
-          <button type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-6 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg shadow-teal-500/30">
+          <button type="submit" disabled={!message.trim()}
+            className="w-full flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg shadow-teal-500/30">
             <Send className="w-4 h-4" /> Send Message
           </button>
         </form>

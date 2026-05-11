@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Calendar, Users, ArrowRight, ArrowRightLeft, Upload, X, Loader2 } from "lucide-react";
+import { MapPin, Calendar, Users, ArrowRight, ArrowRightLeft, Upload, X, Loader2, LogIn } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
@@ -55,6 +55,23 @@ export default function NewTripPage() {
   const [step, setStep] = useState(1);
   const [showAuth, setShowAuth] = useState(false);
   const { user } = useAuth();
+
+  if (!user) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-10 max-w-sm w-full text-center">
+        <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <LogIn className="w-7 h-7 text-teal-600" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Login to host an activity</h2>
+        <p className="text-gray-500 text-sm mb-6">You need to be signed in to create and publish activities.</p>
+        <button onClick={() => setShowAuth(true)}
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition-colors">
+          Sign In / Join Free
+        </button>
+        {showAuth && <AuthModal onClose={() => setShowAuth(false)} defaultTab="signup" />}
+      </div>
+    </div>
+  );
   const { addTrip } = useData();
   const { showToast } = useToast();
   const router = useRouter();
