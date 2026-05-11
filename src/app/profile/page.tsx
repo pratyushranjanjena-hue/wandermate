@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MapPin, Calendar, BadgeCheck, Edit, Save, X, LogOut, Grid3X3, BookOpen, UserPlus, Camera } from "lucide-react";
+import { MapPin, Calendar, BadgeCheck, Edit, Save, X, LogOut, Grid3X3, BookOpen, UserPlus, Camera, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
@@ -22,7 +22,7 @@ const typeColor = {
 
 export default function ProfilePage() {
   const { user, updateUser, logout, getUserById } = useAuth();
-  const { trips, events, posts } = useData();
+  const { trips, events, posts, deletePost } = useData();
   const { showToast } = useToast();
 
   const [editing, setEditing] = useState(false);
@@ -33,6 +33,7 @@ export default function ProfilePage() {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   if (!user) return (
     <div className="max-w-xl mx-auto px-4 py-20 text-center">
@@ -217,22 +218,50 @@ export default function ProfilePage() {
           ) : (
             <div className="grid grid-cols-3 gap-0.5">
               {myPosts.map(post => (
-                <button key={post.id} onClick={() => setSelectedPost(post)}
-                  className="relative aspect-square group overflow-hidden bg-gray-100">
-                  {post.mediaUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={post.mediaUrl} alt={post.title} className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center">
-                      <span className="text-5xl">{post.image}</span>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white text-sm font-semibold">
+                <div key={post.id} className="relative aspect-square group overflow-hidden bg-gray-100">
+                  {/* Thumbnail — click to open */}
+                  <button className="w-full h-full" onClick={() => setSelectedPost(post)}>
+                    {post.mediaUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={post.mediaUrl} alt={post.title} className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center group-hover:opacity-80 transition-opacity">
+                        <span className="text-5xl">{post.image}</span>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Hover overlay — likes/comments */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex items-center justify-center gap-4 text-white text-sm font-semibold">
                     <span>❤️ {post.likes.length}</span>
                     <span>💬 {post.comments.length}</span>
                   </div>
-                  <span className={`absolute top-2 right-2 w-5 h-5 rounded-full ${typeColor[post.type]} opacity-80`} />
-                </button>
+
+                  {/* Type dot */}
+                  <span className={`absolute top-2 left-2 w-5 h-5 rounded-full ${typeColor[post.type]} opacity-80`} />
+
+                  {/* Delete button — top right, appears on hover */}
+                  {confirmDeleteId === post.id ? (
+                    <div className="absolute top-1 right-1 flex gap-1 z-10">
+                      <button
+                        onClick={() => { deletePost(post.id); setConfirmDeleteId(null); showToast("Post deleted", "info"); }}
+                        className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow">
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="bg-gray-600 hover:bg-gray-700 text-white text-xs font-bold px-2 py-1 rounded-lg shadow">
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={e => { e.stopPropagation(); setConfirmDeleteId(post.id); }}
+                      className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10 shadow">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           )

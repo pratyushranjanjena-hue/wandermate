@@ -41,6 +41,7 @@ interface DataContextType {
   unregisterEvent: (eventId: string, userId: string) => void;
   likePost: (postId: string, userId: string) => void;
   addPost: (post: Post) => void;
+  deletePost: (postId: string) => void;
   addComment: (postId: string, comment: Comment) => void;
 }
 
@@ -96,12 +97,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addPost = (post: Post) => savePosts([post, ...posts]);
 
+  const deletePost = (postId: string) => savePosts(posts.filter(p => p.id !== postId));
+
   const addComment = (postId: string, comment: Comment) => {
     savePosts(posts.map(p => p.id === postId ? { ...p, comments: [...p.comments, comment] } : p));
   };
 
   return (
-    <DataContext.Provider value={{ trips, events, posts, addTrip, joinTrip, leaveTrip, registerEvent, unregisterEvent, likePost, addPost, addComment }}>
+    <DataContext.Provider value={{ trips, events, posts, addTrip, joinTrip, leaveTrip, registerEvent, unregisterEvent, likePost, addPost, deletePost, addComment }}>
       {children}
     </DataContext.Provider>
   );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Heart, MessageCircle, Send, MapPin, Eye, Compass, UserPlus } from "lucide-react";
+import { Heart, MessageCircle, Send, MapPin, Eye, Compass, UserPlus, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
@@ -24,11 +24,14 @@ function timeAgo(dateStr: string) {
 
 function FeedCard({ post, onOpenDetail }: { post: Post; onOpenDetail: (p: Post) => void }) {
   const { user } = useAuth();
-  const { likePost, addComment } = useData();
+  const { likePost, addComment, deletePost } = useData();
   const { showToast } = useToast();
   const [commentText, setCommentText] = useState("");
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const isOwner = user?.id === post.authorId;
 
   const liked = user ? post.likes.includes(user.id) : false;
 
@@ -66,7 +69,21 @@ function FeedCard({ post, onOpenDetail }: { post: Post; onOpenDetail: (p: Post) 
               <p className="text-xs text-gray-400 flex items-center gap-0.5"><MapPin className="w-3 h-3" />{post.location}</p>
             </div>
           </Link>
-          <span className="text-xs text-gray-400">{timeAgo(post.createdAt)}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">{timeAgo(post.createdAt)}</span>
+            {isOwner && (
+              confirmDelete ? (
+                <div className="flex items-center gap-1">
+                  <button onClick={() => { deletePost(post.id); showToast("Post deleted", "info"); }} className="text-xs bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-0.5 rounded-lg">Delete</button>
+                  <button onClick={() => setConfirmDelete(false)} className="text-xs text-gray-400 hover:text-gray-600 px-1">Cancel</button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmDelete(true)} className="text-gray-300 hover:text-red-400 transition-colors" title="Delete post">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )
+            )}
+          </div>
         </div>
 
         {/* Media */}
