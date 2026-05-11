@@ -68,44 +68,44 @@ const HERO_SLIDES = [
 
 // ── Trips ────────────────────────────────────────────────────────────────────
 const TRIPS = [
-  { id: "t1", title: "Ladakh Bike Expedition", destination: "Ladakh, J&K", date: "Jun 15–25", spots: 3, totalSpots: 8, type: "Bike Ride", img: U("photo-1548501505-a6a79bf0b774", 600, 400), budget: "₹18,000", difficulty: "Moderate", rating: 4.9 },
-  { id: "t2", title: "Coorg Weekend Retreat", destination: "Coorg, Karnataka", date: "May 24–26", spots: 5, totalSpots: 10, type: "Nature", img: U("photo-1563275955-f699248d51ab", 600, 400), budget: "₹6,500", difficulty: "Easy", rating: 4.8 },
-  { id: "t3", title: "Manali Snow Trek", destination: "Manali, HP", date: "Jul 1–7", spots: 2, totalSpots: 6, type: "Trek", img: U("photo-1653077621914-29052ae0899f", 600, 400), budget: "₹12,000", difficulty: "Hard", rating: 4.7 },
-  { id: "t4", title: "Goa Backpacker Meetup", destination: "Goa", date: "Jun 5–9", spots: 8, totalSpots: 15, type: "Backpacking", img: U("photo-1652820330085-82a0c2b88d78", 600, 400), budget: "₹8,000", difficulty: "Easy", rating: 4.6 },
-  { id: "t5", title: "Hampi Heritage Walk", destination: "Hampi, Karnataka", date: "May 30–Jun 1", spots: 4, totalSpots: 12, type: "Heritage", img: U("photo-1620766182966-c6eb5ed2b788", 600, 400), budget: "₹5,000", difficulty: "Easy", rating: 4.8 },
-  { id: "t6", title: "Spiti Valley Road Trip", destination: "Spiti, HP", date: "Jul 10–20", spots: 1, totalSpots: 4, type: "Road Trip", img: U("photo-1663076968785-baebf243d07d", 600, 400), budget: "₹22,000", difficulty: "Hard", rating: 5.0 },
+  { id: "t1", title: "Ladakh Bike Expedition", destination: "Ladakh, J&K", date: "Jun 15–25", type: "Bike Ride", img: U("photo-1548501505-a6a79bf0b774", 600, 400), budget: "₹18,000", difficulty: "Moderate" },
+  { id: "t2", title: "Coorg Weekend Retreat", destination: "Coorg, Karnataka", date: "May 24–26", type: "Nature", img: U("photo-1563275955-f699248d51ab", 600, 400), budget: "₹6,500", difficulty: "Easy" },
+  { id: "t3", title: "Manali Snow Trek", destination: "Manali, HP", date: "Jul 1–7", type: "Trek", img: U("photo-1653077621914-29052ae0899f", 600, 400), budget: "₹12,000", difficulty: "Hard" },
+  { id: "t4", title: "Goa Backpacker Meetup", destination: "Goa", date: "Jun 5–9", type: "Backpacking", img: U("photo-1652820330085-82a0c2b88d78", 600, 400), budget: "₹8,000", difficulty: "Easy" },
+  { id: "t5", title: "Hampi Heritage Walk", destination: "Hampi, Karnataka", date: "May 30–Jun 1", type: "Heritage", img: U("photo-1620766182966-c6eb5ed2b788", 600, 400), budget: "₹5,000", difficulty: "Easy" },
+  { id: "t6", title: "Spiti Valley Road Trip", destination: "Spiti, HP", date: "Jul 10–20", type: "Road Trip", img: U("photo-1663076968785-baebf243d07d", 600, 400), budget: "₹22,000", difficulty: "Hard" },
 ];
 
 // ── Events ───────────────────────────────────────────────────────────────────
 const EVENTS = [
-  { id: "e1", title: "Royal Enfield Riders Meetup", location: "Pune, Maharashtra", date: "May 18, 2026", type: "Bike Ride", price: "₹1,200", img: U("photo-1530248809527-ee069dc8373a", 600, 400), attendees: 24, max: 30, badge: "Featured" },
-  { id: "e2", title: "Backpackers Hostel Crawl – Goa", location: "Panaji, Goa", date: "June 7–8, 2026", type: "Backpacking", price: "Free", img: U("photo-1599603725708-ec7324f3c7d4", 600, 400), attendees: 18, max: 25, badge: null },
-  { id: "e3", title: "Photography Walk – Hampi Ruins", location: "Hampi, Karnataka", date: "June 14–15", type: "Photography", price: "₹500", img: U("photo-1600100397608-f010f423b971", 600, 400), attendees: 10, max: 15, badge: "New" },
-  { id: "e4", title: "Sahyadri Monsoon Trek", location: "Lonavala, Maharashtra", date: "July 5, 2026", type: "Trek", img: U("photo-1684435948431-c4dd8532813b", 600, 400), price: "₹800", attendees: 32, max: 40, badge: null },
-  { id: "e5", title: "Rajasthan Heritage Road Trip", location: "Jaipur → Jaisalmer", date: "Oct 10–20", type: "Road Trip", price: "₹25,000", img: U("photo-1579270946873-006abf1e0ffe", 600, 400), attendees: 6, max: 8, badge: "Premium" },
-  { id: "e6", title: "Spiti Valley Bike Tour 2026", location: "Manali → Kaza", date: "Aug 1–14, 2026", type: "Bike Ride", price: "₹20,000", img: U("photo-1714224287863-76a311e2dd5b", 600, 400), attendees: 7, max: 10, badge: null },
+  { id: "e1", title: "Royal Enfield Riders Meetup", location: "Pune, Maharashtra", date: "May 18, 2026", type: "Bike Ride", price: "₹1,200", img: U("photo-1530248809527-ee069dc8373a", 600, 400), badge: "Featured" },
+  { id: "e2", title: "Backpackers Hostel Crawl – Goa", location: "Panaji, Goa", date: "June 7–8, 2026", type: "Backpacking", price: "Free", img: U("photo-1599603725708-ec7324f3c7d4", 600, 400), badge: null },
+  { id: "e3", title: "Photography Walk – Hampi Ruins", location: "Hampi, Karnataka", date: "June 14–15", type: "Photography", price: "₹500", img: U("photo-1600100397608-f010f423b971", 600, 400), badge: "New" },
+  { id: "e4", title: "Sahyadri Monsoon Trek", location: "Lonavala, Maharashtra", date: "July 5, 2026", type: "Trek", img: U("photo-1684435948431-c4dd8532813b", 600, 400), price: "₹800", badge: null },
+  { id: "e5", title: "Rajasthan Heritage Road Trip", location: "Jaipur → Jaisalmer", date: "Oct 10–20", type: "Road Trip", price: "₹25,000", img: U("photo-1579270946873-006abf1e0ffe", 600, 400), badge: "Premium" },
+  { id: "e6", title: "Spiti Valley Bike Tour 2026", location: "Manali → Kaza", date: "Aug 1–14, 2026", type: "Bike Ride", price: "₹20,000", img: U("photo-1714224287863-76a311e2dd5b", 600, 400), badge: null },
 ];
 
 // ── Community posts ──────────────────────────────────────────────────────────
 const POSTS = [
-  { id: "p1", type: "blog", author: "Priya S.", avatar: U("photo-1506869640319-fe1a24fd76dc", 80, 80), location: "Ladakh", title: "10 Days in Ladakh on ₹15,000 — Is It Possible?", img: U("photo-1695706833389-df87ea84b2fe", 600, 400), likes: 342, tag: "Budget Travel" },
-  { id: "p2", type: "photo", author: "Arjun K.", avatar: U("photo-1565681003317-b137b4e91b86", 80, 80), location: "Coorg", title: "Golden Hour at Raja's Seat", img: U("photo-1700999945165-1882cd786128", 600, 400), likes: 218, tag: "Photography" },
-  { id: "p3", type: "blog", author: "Sneha R.", avatar: U("photo-1509016491329-3da6c5ba7555", 80, 80), location: "Hampi", title: "My First Solo Trip at 26", img: U("photo-1591536098930-d571deee309a", 600, 400), likes: 521, tag: "Solo Travel" },
-  { id: "p4", type: "video", author: "Vikram T.", avatar: U("photo-1684435948431-c4dd8532813b", 80, 80), location: "Spiti Valley", title: "Riding Through Spiti at 4,500m", img: U("photo-1659267490157-e2a9b9fdb12e", 600, 400), likes: 892, tag: "Bike Ride" },
-  { id: "p5", type: "blog", author: "Ananya B.", avatar: U("photo-1670504850854-27ffd755521e", 80, 80), location: "Goa", title: "The Ultimate Goa Hostel Guide", img: U("photo-1646748019366-3f1c922bfe3b", 600, 400), likes: 267, tag: "Goa" },
-  { id: "p6", type: "photo", author: "Rahul M.", avatar: U("photo-1509016491329-3da6c5ba7555", 80, 80), location: "Manali", title: "Sunrise from Rohtang Pass", img: U("photo-1712255495820-23c2c2d05bd9", 600, 400), likes: 445, tag: "Mountains" },
+  { id: "p1", type: "blog", location: "Ladakh", title: "10 Days in Ladakh on ₹15,000 — Is It Possible?", img: U("photo-1695706833389-df87ea84b2fe", 600, 400), tag: "Budget Travel" },
+  { id: "p2", type: "photo", location: "Coorg", title: "Golden Hour at Raja's Seat", img: U("photo-1700999945165-1882cd786128", 600, 400), tag: "Photography" },
+  { id: "p3", type: "blog", location: "Hampi", title: "My First Solo Trip at 26", img: U("photo-1591536098930-d571deee309a", 600, 400), tag: "Solo Travel" },
+  { id: "p4", type: "video", location: "Spiti Valley", title: "Riding Through Spiti at 4,500m", img: U("photo-1659267490157-e2a9b9fdb12e", 600, 400), tag: "Bike Ride" },
+  { id: "p5", type: "blog", location: "Goa", title: "The Ultimate Goa Hostel Guide", img: U("photo-1646748019366-3f1c922bfe3b", 600, 400), tag: "Goa" },
+  { id: "p6", type: "photo", location: "Manali", title: "Sunrise from Rohtang Pass", img: U("photo-1712255495820-23c2c2d05bd9", 600, 400), tag: "Mountains" },
 ];
 
 // ── Destinations ─────────────────────────────────────────────────────────────
 const DESTINATIONS = [
-  { name: "Ladakh", state: "J&K", img: U("photo-1668602393029-718d15379982", 400, 300), rating: 4.9, trips: 48, tag: "Mountains" },
-  { name: "Goa", state: "Goa", img: U("photo-1652820330085-82a0c2b88d78", 400, 300), rating: 4.6, trips: 89, tag: "Beaches" },
-  { name: "Manali", state: "HP", img: U("photo-1643284673337-6a09e28308e7", 400, 300), rating: 4.7, trips: 61, tag: "Snow" },
-  { name: "Coorg", state: "Karnataka", img: U("photo-1547141521-f6872c7f1e81", 400, 300), rating: 4.8, trips: 32, tag: "Nature" },
-  { name: "Hampi", state: "Karnataka", img: U("photo-1596018382916-56d2e341d784", 400, 300), rating: 4.8, trips: 27, tag: "Heritage" },
-  { name: "Spiti Valley", state: "HP", img: U("photo-1659267490157-e2a9b9fdb12e", 400, 300), rating: 4.9, trips: 19, tag: "Remote" },
-  { name: "Rishikesh", state: "Uttarakhand", img: U("photo-1509016491329-3da6c5ba7555", 400, 300), rating: 4.7, trips: 44, tag: "Adventure" },
-  { name: "Jaisalmer", state: "Rajasthan", img: U("photo-1564509261027-29e141e2c598", 400, 300), rating: 4.8, trips: 22, tag: "Desert" },
+  { name: "Ladakh", state: "J&K", img: U("photo-1668602393029-718d15379982", 400, 300), tag: "Mountains" },
+  { name: "Goa", state: "Goa", img: U("photo-1652820330085-82a0c2b88d78", 400, 300), tag: "Beaches" },
+  { name: "Manali", state: "HP", img: U("photo-1643284673337-6a09e28308e7", 400, 300), tag: "Snow" },
+  { name: "Coorg", state: "Karnataka", img: U("photo-1547141521-f6872c7f1e81", 400, 300), tag: "Nature" },
+  { name: "Hampi", state: "Karnataka", img: U("photo-1596018382916-56d2e341d784", 400, 300), tag: "Heritage" },
+  { name: "Spiti Valley", state: "HP", img: U("photo-1659267490157-e2a9b9fdb12e", 400, 300), tag: "Remote" },
+  { name: "Rishikesh", state: "Uttarakhand", img: U("photo-1509016491329-3da6c5ba7555", 400, 300), tag: "Adventure" },
+  { name: "Jaisalmer", state: "Rajasthan", img: U("photo-1564509261027-29e141e2c598", 400, 300), tag: "Desert" },
 ];
 
 const SLIDES = [
@@ -264,12 +264,8 @@ export default function Home() {
                     <p className="text-gray-400 text-xs flex items-center gap-0.5"><Calendar className="w-3 h-3" />{trip.date}</p>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-teal-700 font-bold text-sm">{trip.budget}</span>
-                      <span className="text-gray-400 text-xs flex items-center gap-0.5"><Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{trip.rating}</span>
+                      <span className="text-xs text-teal-600 font-semibold bg-teal-50 px-1.5 py-0.5 rounded-full">Open</span>
                     </div>
-                    <div className="mt-1.5 w-full bg-gray-100 rounded-full h-1">
-                      <div className="bg-teal-500 h-1 rounded-full" style={{ width: `${((trip.totalSpots - trip.spots) / trip.totalSpots) * 100}%` }} />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-0.5">{trip.spots} spots left</p>
                   </div>
                 </Link>
               ))}
@@ -306,11 +302,8 @@ export default function Home() {
                     <h3 className="font-bold text-white text-xs mt-1.5 leading-snug line-clamp-2">{event.title}</h3>
                     <p className="text-gray-400 text-xs flex items-center gap-0.5 mt-1"><MapPin className="w-3 h-3" />{event.location}</p>
                     <p className="text-gray-400 text-xs flex items-center gap-0.5 mt-0.5"><Calendar className="w-3 h-3" />{event.date}</p>
-                    <div className="mt-2 w-full bg-white/10 rounded-full h-1">
-                      <div className="bg-teal-500 h-1 rounded-full" style={{ width: `${(event.attendees / event.max) * 100}%` }} />
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-gray-500 text-xs">{event.attendees}/{event.max} going</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-teal-400 text-xs font-semibold">Register now</p>
                       <button className="flex items-center gap-0.5 bg-teal-500/20 hover:bg-teal-500 text-teal-300 hover:text-white text-xs font-semibold px-2 py-1 rounded-lg transition-colors">
                         <Ticket className="w-3 h-3" /> Join
                       </button>
@@ -344,17 +337,8 @@ export default function Home() {
                     <span className={`absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full font-medium ${post.type === "blog" ? "bg-blue-500/80 text-white" : post.type === "photo" ? "bg-purple-500/80 text-white" : "bg-red-500/80 text-white"}`}>
                       {post.type === "blog" ? "✍️ Blog" : post.type === "photo" ? "📷 Photo" : "🎬 Video"}
                     </span>
-                    <div className="absolute bottom-2 right-2 flex items-center gap-1 text-white/80 text-xs">
-                      <Heart className="w-3 h-3 fill-red-400 text-red-400" /> {post.likes}
-                    </div>
                   </div>
                   <div className="p-3">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="relative w-5 h-5 rounded-full overflow-hidden shrink-0 bg-gray-700">
-                        <Image src={post.avatar} alt={post.author} fill className="object-cover" unoptimized />
-                      </div>
-                      <span className="text-gray-400 text-xs">{post.author}</span>
-                    </div>
                     <h3 className="font-bold text-white text-xs leading-snug line-clamp-2">{post.title}</h3>
                     <p className="text-gray-500 text-xs flex items-center gap-0.5 mt-1"><MapPin className="w-3 h-3" />{post.location}</p>
                     <span className="inline-block mt-1.5 text-xs bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded-full">#{post.tag}</span>
@@ -397,7 +381,6 @@ export default function Home() {
                     <p className="text-gray-300 text-xs">{dest.state}</p>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-xs bg-emerald-500/30 text-emerald-300 px-1.5 py-0.5 rounded-full">{dest.tag}</span>
-                      <span className="text-yellow-400 text-xs flex items-center gap-0.5"><Star className="w-3 h-3 fill-yellow-400" />{dest.rating}</span>
                     </div>
                   </div>
                 </Link>
