@@ -9,7 +9,7 @@ import { useToast } from "@/context/ToastContext";
 import { Trip } from "@/types";
 import AuthModal from "@/components/AuthModal";
 
-const TRIP_TYPES = ["Bike Ride", "Trek", "Road Trip", "Camping", "Backpacking", "Food Tour", "Heritage Walk", "Photography Tour", "Other"];
+const TRIP_TYPES = ["Camping", "Trekking", "Travel", "Food Exploring", "Sports & Games", "Social Activity", "Content Creation", "Bike Ride", "Road Trip", "Backpacking", "Cycling", "Heritage Walk", "Yoga & Wellness", "Photography Tour", "Other"];
 const IMAGES = ["🏔️", "🌿", "❄️", "🏖️", "🏛️", "🌄", "🌅", "🏍️", "🎒", "📸", "🌊", "🏜️", "⛺"];
 
 const INDIA_STATES: Record<string, string[]> = {
@@ -98,15 +98,15 @@ export default function NewTripPage() {
       createdAt: new Date().toISOString().split("T")[0],
     };
     addTrip(trip);
-    showToast("Trip published! Travelers can now join 🎉");
+    showToast("Activity published! People can now join 🎉");
     router.push("/trips");
   };
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Host a Trip</h1>
-        <p className="text-gray-500 mt-1">Fill in the details and find your travel tribe</p>
+        <h1 className="text-3xl font-bold text-gray-900">Host an Activity</h1>
+        <p className="text-gray-500 mt-1">Camping, trekking, food walks, sports, travel & more — find your tribe</p>
       </div>
 
       <div className="flex items-center gap-2 mb-10">
@@ -124,15 +124,15 @@ export default function NewTripPage() {
           <div className="space-y-6">
             {/* Title */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Trip Title *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Activity Title *</label>
               <input type="text" value={form.title} onChange={e => set("title", e.target.value)}
-                placeholder="e.g. Royal Enfield Ladakh Ride 2026"
+                placeholder="e.g. Camping at Coorg, Street Food Walk Mumbai..."
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
             </div>
 
             {/* Type */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Trip Type</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Activity Type</label>
               <div className="flex flex-wrap gap-2">
                 {TRIP_TYPES.map(t => (
                   <button key={t} type="button" onClick={() => set("type", t)}

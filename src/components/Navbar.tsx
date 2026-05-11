@@ -10,11 +10,11 @@ import { UserAvatar } from "./AvatarPicker";
 
 const navLinks = [
   { href: "/feed", label: "Feed" },
-  { href: "/trips", label: "Find Trips" },
+  { href: "/trips", label: "Activities" },
   { href: "/events", label: "Events" },
-  { href: "/community", label: "Community" },
+  { href: "/community", label: "Stories" },
   { href: "/match", label: "⚡ Match" },
-  { href: "/destinations", label: "Destinations" },
+  { href: "/destinations", label: "Explore" },
 ];
 
 export default function Navbar() {
@@ -71,7 +71,7 @@ export default function Navbar() {
                       </button>
                       <Link href="/trips/new" onClick={() => setShowDropdown(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700">
-                        <Compass className="w-4 h-4" /> Plan a Trip
+                        <Compass className="w-4 h-4" /> Host an Activity
                       </Link>
                       <hr className="my-1 border-gray-100" />
                       <button onClick={() => { logout(); setShowDropdown(false); }}
@@ -95,7 +95,7 @@ export default function Navbar() {
               {user && (
                 <Link href="/trips/new"
                   className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
-                  + Plan a Trip
+                  + Host an Activity
                 </Link>
               )}
             </div>

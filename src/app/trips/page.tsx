@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import AuthModal from "@/components/AuthModal";
 
-const TYPES = ["All", "Bike Ride", "Trek", "Road Trip", "Nature", "Backpacking", "Heritage"];
+const TYPES = ["All", "Camping", "Trekking", "Travel", "Food Exploring", "Sports & Games", "Social Activity", "Content Creation", "Bike Ride", "Road Trip", "Backpacking", "Heritage", "Nature", "Cycling", "Yoga & Wellness"];
 
 const MAX_BUDGET = 50000;
 
@@ -135,7 +135,7 @@ export default function TripsPage() {
     if (!trip) return;
     if (trip.joinedUsers.includes(user.id)) {
       leaveTrip(tripId, user.id);
-      showToast("You've left the trip.", "info");
+      showToast("You've left the activity.", "info");
     } else if (trip.joinedUsers.length >= trip.totalSpots) {
       showToast("Sorry, this trip is full!", "error");
     } else {
@@ -147,8 +147,8 @@ export default function TripsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Find Open Trips</h1>
-        <p className="text-gray-500 mt-1">Join a trip that's already planned — just show up and go</p>
+        <h1 className="text-3xl font-bold text-gray-900">Find Activities</h1>
+        <p className="text-gray-500 mt-1">Camping, trekking, food walks, sports, travel & more — join a group near you</p>
       </div>
 
       {/* Search + buttons */}
@@ -169,7 +169,7 @@ export default function TripsPage() {
           )}
         </button>
         <Link href="/trips/new" className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors text-center">
-          + Host a Trip
+          + Host an Activity
         </Link>
       </div>
 

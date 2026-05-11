@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import AuthModal from "@/components/AuthModal";
 
-const EVENT_TYPES = ["All Events", "Bike Ride", "Trek", "Road Trip", "Photography", "Backpacking", "Camping"];
+const EVENT_TYPES = ["All Events", "Camping", "Trekking", "Travel", "Food Walk", "Sports & Games", "Social Meetup", "Content Creation", "Bike Ride", "Cycling", "Yoga & Wellness", "Music & Culture", "Photography", "Backpacking", "Road Trip"];
 
 export default function EventsPage() {
   const { events, registerEvent, unregisterEvent } = useData();
@@ -38,11 +38,11 @@ export default function EventsPage() {
     <div className="max-w-7xl mx-auto px-4 py-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Upcoming Events</h1>
-          <p className="text-gray-500 mt-1">Hosted by real travelers — join or host your own</p>
+          <h1 className="text-3xl font-bold text-gray-900">Upcoming Events & Meetups</h1>
+          <p className="text-gray-500 mt-1">Camping, food walks, sports, travel & more — join or host your own</p>
         </div>
         <Link href="/trips/new" className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors text-center">
-          + Host an Event
+          + Host an Activity
         </Link>
       </div>
 

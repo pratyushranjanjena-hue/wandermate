@@ -12,88 +12,88 @@ const U = (id: string, w = 1400, h = 900) =>
 const HERO_SLIDES = [
   {
     id: "hero-1",
-    bg: U("photo-1548501505-a6a79bf0b774"),
-    tag: "Bike Ride", label: "01",
-    title: "Ladakh Bike Expedition",
-    subtitle: "Ride through the highest motorable roads in the world",
-    location: "Ladakh, J&K", meta: "8 riders · June 2026", spots: "3 spots left",
+    bg: U("photo-1504280390367-361c6d9f38f4"),
+    tag: "Camping", label: "01",
+    title: "Camping Under the Stars",
+    subtitle: "Wake up to birdsong, campfire coffee, and people who get it",
+    location: "Coorg, Karnataka", meta: "12 spots available", spots: "Join this activity",
     color: "from-black/70 via-black/40 to-transparent",
   },
   {
     id: "hero-2",
-    bg: U("photo-1587538445896-d1f222cb0653"),
-    tag: "Nature Retreat", label: "02",
-    title: "Coorg Weekend Escape",
-    subtitle: "Coffee estates, waterfalls and misty mountain mornings",
-    location: "Coorg, Karnataka", meta: "10 travelers · May 2026", spots: "5 spots left",
+    bg: U("photo-1555396273-367ea4eb4db5"),
+    tag: "Food Exploring", label: "02",
+    title: "India's Best Street Food Walks",
+    subtitle: "Eat your way through Mumbai, Delhi, Hyderabad with locals who know every stall",
+    location: "Across India", meta: "Food walks every weekend", spots: "Explore food events",
     color: "from-black/70 via-black/40 to-transparent",
   },
   {
     id: "hero-3",
     bg: U("photo-1602853238986-89bc0191754b"),
-    tag: "Snow Trek", label: "03",
+    tag: "Trekking", label: "03",
     title: "Manali High Altitude Trek",
     subtitle: "Frozen valleys, alpine meadows and starlit campsites",
-    location: "Manali, HP", meta: "6 trekkers · July 2026", spots: "2 spots left",
+    location: "Manali, HP", meta: "Group treks — all levels", spots: "See treks",
     color: "from-black/70 via-black/40 to-transparent",
   },
   {
     id: "hero-4",
-    bg: U("photo-1590393275627-0c48482c60e3"),
-    tag: "Backpacking", label: "04",
-    title: "Goa Backpacker Meetup",
-    subtitle: "Hidden beaches, local shacks and night markets with new friends",
-    location: "Goa", meta: "15 backpackers · June 2026", spots: "8 spots left",
+    bg: U("photo-1530549387789-4c1017266635"),
+    tag: "Sports & Games", label: "04",
+    title: "Beach Sports & Weekend Games",
+    subtitle: "Volleyball, cricket, cycling, frisbee — play with new people every weekend",
+    location: "Goa, Mumbai, Bengaluru", meta: "Open to all fitness levels", spots: "Join a sports meetup",
     color: "from-black/70 via-black/40 to-transparent",
   },
   {
     id: "hero-5",
-    bg: U("photo-1596018382916-56d2e341d784"),
-    tag: "Heritage Walk", label: "05",
-    title: "Hampi Ruins Explorer",
-    subtitle: "Ancient temples, boulder landscapes and golden hour photography",
-    location: "Hampi, Karnataka", meta: "12 explorers · May 2026", spots: "4 spots left",
+    bg: U("photo-1492691527719-9d1e07e534b4"),
+    tag: "Content Creation", label: "05",
+    title: "Shoot, Edit & Create Together",
+    subtitle: "Travel Reels, food photography, vlogs — with a crew that shares your vision",
+    location: "All over India", meta: "Creator meetups monthly", spots: "Find your crew",
     color: "from-black/70 via-black/40 to-transparent",
   },
   {
     id: "hero-6",
-    bg: U("photo-1636567652095-f59e54ed6d3a"),
-    tag: "Road Trip", label: "06",
-    title: "Spiti Valley Road Trip",
-    subtitle: "The last road to the edge of India — monasteries and silence",
-    location: "Spiti Valley, HP", meta: "4 travelers · July 2026", spots: "1 spot left",
+    bg: U("photo-1511632765486-a01980e01a18"),
+    tag: "Social Activity", label: "06",
+    title: "Meet Your Kind of People",
+    subtitle: "Board games, open mics, city walks — no reason needed to make new friends",
+    location: "Your city", meta: "Social meetups near you", spots: "See what's happening",
     color: "from-black/70 via-black/40 to-transparent",
   },
 ];
 
-// ── Trips ────────────────────────────────────────────────────────────────────
+// ── Activities ───────────────────────────────────────────────────────────────
 const TRIPS = [
-  { id: "t1", title: "Ladakh Bike Expedition", destination: "Ladakh, J&K", date: "Jun 15–25", type: "Bike Ride", img: U("photo-1548501505-a6a79bf0b774", 600, 400), budget: "₹18,000", difficulty: "Moderate" },
-  { id: "t2", title: "Coorg Weekend Retreat", destination: "Coorg, Karnataka", date: "May 24–26", type: "Nature", img: U("photo-1563275955-f699248d51ab", 600, 400), budget: "₹6,500", difficulty: "Easy" },
-  { id: "t3", title: "Manali Snow Trek", destination: "Manali, HP", date: "Jul 1–7", type: "Trek", img: U("photo-1653077621914-29052ae0899f", 600, 400), budget: "₹12,000", difficulty: "Hard" },
-  { id: "t4", title: "Goa Backpacker Meetup", destination: "Goa", date: "Jun 5–9", type: "Backpacking", img: U("photo-1652820330085-82a0c2b88d78", 600, 400), budget: "₹8,000", difficulty: "Easy" },
-  { id: "t5", title: "Hampi Heritage Walk", destination: "Hampi, Karnataka", date: "May 30–Jun 1", type: "Heritage", img: U("photo-1620766182966-c6eb5ed2b788", 600, 400), budget: "₹5,000", difficulty: "Easy" },
-  { id: "t6", title: "Spiti Valley Road Trip", destination: "Spiti, HP", date: "Jul 10–20", type: "Road Trip", img: U("photo-1663076968785-baebf243d07d", 600, 400), budget: "₹22,000", difficulty: "Hard" },
+  { id: "t1", title: "Coorg Camping Weekend", destination: "Coorg, Karnataka", date: "Jun 7–9", type: "Camping", img: U("photo-1504280390367-361c6d9f38f4", 600, 400), budget: "₹4,500" },
+  { id: "t2", title: "Mumbai Street Food Safari", destination: "Mumbai, Maharashtra", date: "May 24", type: "Food Exploring", img: U("photo-1555396273-367ea4eb4db5", 600, 400), budget: "₹1,200" },
+  { id: "t3", title: "Manali Snow Trek", destination: "Manali, HP", date: "Jul 1–7", type: "Trekking", img: U("photo-1602853238986-89bc0191754b", 600, 400), budget: "₹12,000" },
+  { id: "t4", title: "Goa Beach Sports Meetup", destination: "Goa", date: "Jun 5–7", type: "Sports & Games", img: U("photo-1530549387789-4c1017266635", 600, 400), budget: "₹3,000" },
+  { id: "t5", title: "Bangalore Cyclists Sunrise Ride", destination: "Nandi Hills, Karnataka", date: "May 30–31", type: "Cycling", img: U("photo-1476611338391-6f395a0ebc7b", 600, 400), budget: "₹1,500" },
+  { id: "t6", title: "Hyderabad Photography Walk", destination: "Hyderabad", date: "Jun 14", type: "Content Creation", img: U("photo-1492691527719-9d1e07e534b4", 600, 400), budget: "₹500" },
 ];
 
 // ── Events ───────────────────────────────────────────────────────────────────
 const EVENTS = [
-  { id: "e1", title: "Royal Enfield Riders Meetup", location: "Pune, Maharashtra", date: "May 18, 2026", type: "Bike Ride", price: "₹1,200", img: U("photo-1530248809527-ee069dc8373a", 600, 400), badge: "Featured" },
-  { id: "e2", title: "Backpackers Hostel Crawl – Goa", location: "Panaji, Goa", date: "June 7–8, 2026", type: "Backpacking", price: "Free", img: U("photo-1599603725708-ec7324f3c7d4", 600, 400), badge: null },
-  { id: "e3", title: "Photography Walk – Hampi Ruins", location: "Hampi, Karnataka", date: "June 14–15", type: "Photography", price: "₹500", img: U("photo-1600100397608-f010f423b971", 600, 400), badge: "New" },
-  { id: "e4", title: "Sahyadri Monsoon Trek", location: "Lonavala, Maharashtra", date: "July 5, 2026", type: "Trek", img: U("photo-1684435948431-c4dd8532813b", 600, 400), price: "₹800", badge: null },
-  { id: "e5", title: "Rajasthan Heritage Road Trip", location: "Jaipur → Jaisalmer", date: "Oct 10–20", type: "Road Trip", price: "₹25,000", img: U("photo-1579270946873-006abf1e0ffe", 600, 400), badge: "Premium" },
-  { id: "e6", title: "Spiti Valley Bike Tour 2026", location: "Manali → Kaza", date: "Aug 1–14, 2026", type: "Bike Ride", price: "₹20,000", img: U("photo-1714224287863-76a311e2dd5b", 600, 400), badge: null },
+  { id: "e1", title: "Midnight Camping at Pondicherry Beach", location: "Pondicherry", date: "May 25, 2026", type: "Camping", price: "₹1,800", img: U("photo-1504280390367-361c6d9f38f4", 600, 400), badge: "Featured" },
+  { id: "e2", title: "Delhi Street Food Photography Walk", location: "Old Delhi", date: "June 1, 2026", type: "Food Walk", price: "₹800", img: U("photo-1555396273-367ea4eb4db5", 600, 400), badge: "New" },
+  { id: "e3", title: "Bangalore Boardgames & Brunch", location: "Koramangala, Bengaluru", date: "May 18, 2026", type: "Social Meetup", price: "Free", img: U("photo-1511632765486-a01980e01a18", 600, 400), badge: null },
+  { id: "e4", title: "Sahyadri Monsoon Trek", location: "Lonavala, Maharashtra", date: "July 5, 2026", type: "Trekking", img: U("photo-1602853238986-89bc0191754b", 600, 400), price: "₹800", badge: null },
+  { id: "e5", title: "Travel Reels & Content Bootcamp", location: "Bengaluru", date: "June 14, 2026", type: "Content Creation", price: "₹1,200", img: U("photo-1492691527719-9d1e07e534b4", 600, 400), badge: "New" },
+  { id: "e6", title: "Mumbai Cyclists Social Ride", location: "Bandra, Mumbai", date: "June 7, 2026", type: "Sports & Games", price: "Free", img: U("photo-1530549387789-4c1017266635", 600, 400), badge: null },
 ];
 
 // ── Community posts ──────────────────────────────────────────────────────────
 const POSTS = [
-  { id: "p1", type: "blog", location: "Ladakh", title: "10 Days in Ladakh on ₹15,000 — Is It Possible?", img: U("photo-1695706833389-df87ea84b2fe", 600, 400), tag: "Budget Travel" },
-  { id: "p2", type: "photo", location: "Coorg", title: "Golden Hour at Raja's Seat", img: U("photo-1700999945165-1882cd786128", 600, 400), tag: "Photography" },
-  { id: "p3", type: "blog", location: "Hampi", title: "My First Solo Trip at 26", img: U("photo-1591536098930-d571deee309a", 600, 400), tag: "Solo Travel" },
-  { id: "p4", type: "video", location: "Spiti Valley", title: "Riding Through Spiti at 4,500m", img: U("photo-1659267490157-e2a9b9fdb12e", 600, 400), tag: "Bike Ride" },
-  { id: "p5", type: "blog", location: "Goa", title: "The Ultimate Goa Hostel Guide", img: U("photo-1646748019366-3f1c922bfe3b", 600, 400), tag: "Goa" },
-  { id: "p6", type: "photo", location: "Manali", title: "Sunrise from Rohtang Pass", img: U("photo-1712255495820-23c2c2d05bd9", 600, 400), tag: "Mountains" },
+  { id: "p1", type: "blog", location: "Coorg, Karnataka", title: "My First Camping Trip — What I Packed, What I Forgot", img: U("photo-1504280390367-361c6d9f38f4", 600, 400), tag: "Camping" },
+  { id: "p2", type: "photo", location: "Mumbai", title: "Mumbai Street Food at 2am — A Photo Essay", img: U("photo-1555396273-367ea4eb4db5", 600, 400), tag: "Food" },
+  { id: "p3", type: "blog", location: "Bengaluru", title: "How I Made 20 New Friends Over Board Games", img: U("photo-1511632765486-a01980e01a18", 600, 400), tag: "Social" },
+  { id: "p4", type: "video", location: "Manali, HP", title: "How We Shot a Travel Reel on Just a Phone", img: U("photo-1492691527719-9d1e07e534b4", 600, 400), tag: "Content Creation" },
+  { id: "p5", type: "blog", location: "Rishikesh", title: "I Did a Yoga Retreat as a Skeptic — Here's What Happened", img: U("photo-1545389336-cf090694435e", 600, 400), tag: "Wellness" },
+  { id: "p6", type: "photo", location: "Goa", title: "Beach Volleyball with Strangers Made My Trip", img: U("photo-1530549387789-4c1017266635", 600, 400), tag: "Sports" },
 ];
 
 // ── Destinations ─────────────────────────────────────────────────────────────
@@ -203,10 +203,10 @@ export default function Home() {
                 </div>
                 <div className="flex flex-wrap gap-4 mb-10">
                   <Link href="/trips" className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 py-4 rounded-full text-lg transition-all shadow-xl hover:scale-105">
-                    Find a Trip <ArrowRight className="w-5 h-5" />
+                    Explore Activities <ArrowRight className="w-5 h-5" />
                   </Link>
                   <Link href="/trips/new" className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold px-8 py-4 rounded-full text-lg transition-all backdrop-blur-sm">
-                    Host a Trip
+                    Host an Activity
                   </Link>
                 </div>
                 <div className="grid grid-cols-4 gap-6 max-w-sm">
@@ -240,12 +240,12 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-6 w-full py-4 flex flex-col h-full justify-center">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-teal-600 text-xs font-bold uppercase tracking-widest">02 / Open Trips</span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-0.5">Find Your Next Adventure</h2>
-                <p className="text-gray-500 text-sm mt-0.5">Real group trips you can join today</p>
+                <span className="text-teal-600 text-xs font-bold uppercase tracking-widest">02 / Activities</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-0.5">Find Your Next Activity</h2>
+                <p className="text-gray-500 text-sm mt-0.5">Camping, food walks, treks, sports & more — join a group today</p>
               </div>
               <Link href="/trips" className="hidden sm:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold px-5 py-2.5 rounded-full text-sm transition-colors">
-                View All <ArrowRight className="w-4 h-4" />
+                All Activities <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -256,7 +256,6 @@ export default function Home() {
                     <Image src={trip.img} alt={trip.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                     <span className="absolute bottom-2 left-2 text-xs bg-teal-500 text-white font-semibold px-2 py-0.5 rounded-full">{trip.type}</span>
-                    <span className={`absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded-full font-medium ${trip.difficulty === "Easy" ? "bg-green-500 text-white" : trip.difficulty === "Moderate" ? "bg-yellow-500 text-white" : "bg-red-500 text-white"}`}>{trip.difficulty}</span>
                   </div>
                   <div className="p-3">
                     <h3 className="font-bold text-gray-900 text-xs leading-snug mb-1">{trip.title}</h3>
@@ -320,9 +319,9 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-6 w-full py-4 flex flex-col h-full justify-center">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-indigo-400 text-xs font-bold uppercase tracking-widest">04 / Community</span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-0.5">Stories from the Road</h2>
-                <p className="text-gray-400 text-sm mt-0.5">Blogs, photos and videos by real travelers</p>
+                <span className="text-indigo-400 text-xs font-bold uppercase tracking-widest">04 / Stories</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-0.5">Stories from the Community</h2>
+                <p className="text-gray-400 text-sm mt-0.5">Camping diaries, food walks, sports moments, creator tips & more</p>
               </div>
               <Link href="/community" className="hidden sm:flex items-center gap-2 bg-indigo-500 hover:bg-indigo-400 text-white font-semibold px-5 py-2.5 rounded-full text-sm transition-colors">
                 All Stories <ArrowRight className="w-4 h-4" />

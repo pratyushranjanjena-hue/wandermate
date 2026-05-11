@@ -13,6 +13,8 @@ import { Post, Comment } from "@/types";
 
 type TabType = "All" | "blog" | "photo" | "video";
 
+const CATEGORIES = ["All Topics", "Camping", "Trekking", "Travel", "Food", "Sports & Games", "Social", "Content Creation"];
+
 const typeIcon = { blog: <BookOpen className="w-3.5 h-3.5" />, photo: <Image className="w-3.5 h-3.5" />, video: <Video className="w-3.5 h-3.5" /> };
 const typeColor = { blog: "bg-blue-100 text-blue-600", photo: "bg-purple-100 text-purple-600", video: "bg-red-100 text-red-600" };
 
@@ -119,11 +121,16 @@ export default function CommunityPage() {
   const { posts } = useData();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("All");
+  const [activeCategory, setActiveCategory] = useState("All Topics");
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
-  const filtered = posts.filter(p => activeTab === "All" || p.type === activeTab);
+  const filtered = posts.filter(p => {
+    const matchesTab = activeTab === "All" || p.type === activeTab;
+    const matchesCategory = activeCategory === "All Topics" || p.tags.some(tag => tag.toLowerCase().includes(activeCategory.toLowerCase().split(" ")[0]));
+    return matchesTab && matchesCategory;
+  });
 
   const handleWriteStory = () => {
     if (!user) { setShowAuth(true); return; }
@@ -135,7 +142,7 @@ export default function CommunityPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Community Stories</h1>
-          <p className="text-gray-500 mt-1">Blogs, photos, and videos from real WanderMate travelers</p>
+          <p className="text-gray-500 mt-1">Camping, food, sports, travel & more — share your experiences</p>
         </div>
         <div className="flex gap-3">
           <Link href="/feed" className="border border-teal-600 text-teal-600 hover:bg-teal-50 font-semibold px-5 py-3 rounded-xl text-sm transition-colors">
@@ -145,6 +152,16 @@ export default function CommunityPage() {
             + Write a Story
           </button>
         </div>
+      </div>
+
+      {/* Category chips */}
+      <div className="flex gap-2 flex-wrap mb-4">
+        {CATEGORIES.map(cat => (
+          <button key={cat} onClick={() => setActiveCategory(cat)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${activeCategory === cat ? "bg-teal-600 text-white border-teal-600" : "bg-white text-gray-600 border-gray-200 hover:border-teal-300"}`}>
+            {cat}
+          </button>
+        ))}
       </div>
 
       <div className="flex gap-3 mb-8 border-b border-gray-100">
