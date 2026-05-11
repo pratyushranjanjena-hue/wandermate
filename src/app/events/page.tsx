@@ -110,8 +110,8 @@ export default function EventsPage() {
                   <p className="text-xs uppercase tracking-wide">Cities</p>
                 </div>
               </div>
-              <Link href="/trips/new" className="inline-flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-400 text-white font-bold px-6 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg shadow-purple-500/30">
-                + Host an Activity
+              <Link href="/events/new" className="inline-flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-400 text-white font-bold px-6 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg shadow-purple-500/30">
+                + Create an Event
               </Link>
             </div>
           </div>
@@ -129,7 +129,12 @@ export default function EventsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {thisWeek.map(event => (
                 <div key={event.id} className="relative rounded-2xl overflow-hidden h-36 group cursor-pointer">
-                  <Image src={getPhoto(event.type)} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                  {event.photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={event.photoUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <Image src={getPhoto(event.type)} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3">
                     <p className="text-white font-bold text-sm leading-tight">{event.title}</p>
@@ -162,11 +167,26 @@ export default function EventsPage() {
 
         <p className="text-sm text-gray-400 mb-6"><strong className="text-gray-700">{filtered.length}</strong> events found</p>
 
-        {filtered.length === 0 && (
+        {filtered.length === 0 && events.length === 0 && (
+          <div className="text-center py-24 px-4">
+            <div className="text-8xl mb-6">🎪</div>
+            <h2 className="text-2xl font-extrabold text-gray-800 mb-2">No events yet — yours could be the first!</h2>
+            <p className="text-gray-500 text-base max-w-md mx-auto mb-8">
+              The best gatherings start with one person brave enough to say "let&apos;s do this". A Sunday brunch, a morning cycle, a food walk — whatever gets people moving. Someone has to go first. Why not you?
+            </p>
+            <Link href="/events/new"
+              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-3.5 rounded-full text-base transition-all hover:scale-105 shadow-lg shadow-purple-200">
+              🎉 Create the First Event
+            </Link>
+            <p className="text-gray-400 text-xs mt-4">Free to create. Takes 2 minutes.</p>
+          </div>
+        )}
+
+        {filtered.length === 0 && events.length > 0 && (
           <div className="text-center py-24">
             <p className="text-6xl mb-4">📅</p>
-            <p className="text-xl font-bold text-gray-700">No events found</p>
-            <p className="text-gray-400 text-sm mt-2">Try a different category or <Link href="/trips/new" className="text-purple-600 underline font-medium">host one yourself</Link></p>
+            <p className="text-xl font-bold text-gray-700">No events match your search</p>
+            <p className="text-gray-400 text-sm mt-2">Try a different category or <Link href="/events/new" className="text-purple-600 underline font-medium">create one yourself</Link></p>
           </div>
         )}
 
@@ -179,7 +199,12 @@ export default function EventsPage() {
               <div key={event.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
                 {/* Photo */}
                 <div className="relative h-48 overflow-hidden">
-                  <Image src={getPhoto(event.type)} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                  {event.photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={event.photoUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <Image src={getPhoto(event.type)} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <div className="absolute top-3 left-3 flex gap-1.5">
                     <span className="bg-purple-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">

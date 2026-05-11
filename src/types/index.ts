@@ -73,6 +73,7 @@ export interface Trip {
   description: string;
   whatToBring: string;
   createdAt: string;
+  photoUrl?: string;
   genderPreference?: "Everyone" | "Males Only" | "Females Only" | "Couples" | "Mixed Groups";
   ageGroups?: string[];
 }
@@ -89,6 +90,7 @@ export interface Event {
   type: string;
   price: string;
   image: string;
+  photoUrl?: string;
   badge: string | null;
   description: string;
 }

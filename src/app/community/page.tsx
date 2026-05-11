@@ -263,11 +263,26 @@ export default function CommunityPage() {
 
         <p className="text-sm text-gray-400 mb-6"><strong className="text-gray-700">{filtered.length}</strong> stories found</p>
 
-        {filtered.length === 0 && (
+        {filtered.length === 0 && posts.length === 0 && (
+          <div className="text-center py-24 px-4">
+            <div className="text-8xl mb-6">✍️</div>
+            <h2 className="text-2xl font-extrabold text-gray-800 mb-2">No stories yet — yours deserves to be first.</h2>
+            <p className="text-gray-500 text-base max-w-md mx-auto mb-8">
+              Every great travel community starts with one honest story. That weird detour, the stranger who became a friend, the chai that changed everything. Write it. Someone out there needs to read it.
+            </p>
+            <button onClick={handleWriteStory}
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3.5 rounded-full text-base transition-all hover:scale-105 shadow-lg shadow-indigo-200">
+              📝 Write the First Story
+            </button>
+            <p className="text-gray-400 text-xs mt-4">Blogs, photos, and videos — all welcome.</p>
+          </div>
+        )}
+
+        {filtered.length === 0 && posts.length > 0 && (
           <div className="text-center py-24">
-            <p className="text-6xl mb-4">✍️</p>
-            <p className="text-xl font-bold text-gray-700">No stories yet</p>
-            <button onClick={handleWriteStory} className="mt-3 text-indigo-600 underline text-sm font-medium">Be the first to share!</button>
+            <p className="text-6xl mb-4">🔍</p>
+            <p className="text-xl font-bold text-gray-700">No stories match this filter</p>
+            <button onClick={handleWriteStory} className="mt-3 text-indigo-600 underline text-sm font-medium">Write one yourself!</button>
           </div>
         )}
 

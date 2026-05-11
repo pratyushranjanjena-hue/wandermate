@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Calendar, Users, ArrowRight, ArrowRightLeft } from "lucide-react";
+import { MapPin, Calendar, Users, ArrowRight, ArrowRightLeft, Upload, X, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import { Trip } from "@/types";
 import AuthModal from "@/components/AuthModal";
+import { compressPhoto, saveMedia } from "@/lib/mediaStorage";
 
 const TRIP_TYPES = ["Camping", "Trekking", "Travel", "Food Exploring", "Sports & Games", "Social Activity", "Content Creation", "Bike Ride", "Road Trip", "Backpacking", "Cycling", "Heritage Walk", "Yoga & Wellness", "Photography Tour", "Other"];
-const IMAGES = ["🏔️", "🌿", "❄️", "🏖️", "🏛️", "🌄", "🌅", "🏍️", "🎒", "📸", "🌊", "🏜️", "⛺"];
 
 const INDIA_STATES: Record<string, string[]> = {
   "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Kakinada", "Tirupati", "Rajahmundry", "Kadapa", "Anantapur"],
@@ -58,17 +58,41 @@ export default function NewTripPage() {
   const { addTrip } = useData();
   const { showToast } = useToast();
   const router = useRouter();
+  const photoRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
-    title: "", type: "Bike Ride",
+    title: "", type: "Camping",
     fromState: "", from: "",
     toState: "", destination: "",
     startDate: "", endDate: "",
     totalSpots: "8", budget: "", difficulty: "Moderate" as Trip["difficulty"],
-    description: "", whatToBring: "", image: "🏔️",
+    description: "", whatToBring: "",
     genderPreference: "Everyone" as NonNullable<Trip["genderPreference"]>,
     ageGroups: [] as string[],
   });
+
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [photoUploading, setPhotoUploading] = useState(false);
+
+  const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoUploading(true);
+    try {
+      const { dataUrl, blob } = await compressPhoto(file);
+      const key = `trip_photo_${Date.now()}`;
+      await saveMedia(key, blob);
+      setPhotoDataUrl(dataUrl);
+      setPhotoPreview(dataUrl);
+    } catch {
+      showToast("Could not process photo. Try another file.", "error");
+    }
+    setPhotoUploading(false);
+    e.target.value = "";
+  };
+
+  const clearPhoto = () => { setPhotoPreview(""); setPhotoDataUrl(""); };
 
   const toggleAge = (age: string) => setForm(f => ({
     ...f,
@@ -92,7 +116,8 @@ export default function NewTripPage() {
       startDate: form.startDate,
       endDate: form.endDate,
       type: form.type,
-      image: form.image,
+      image: "",
+      photoUrl: photoDataUrl || undefined,
       hostId: user.id,
       hostName: user.name,
       rating: 0,
@@ -131,6 +156,39 @@ export default function NewTripPage() {
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-8">
         {step === 1 && (
           <div className="space-y-6">
+            {/* Cover Photo */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Cover Photo <span className="text-gray-400 font-normal">(optional — makes your activity stand out)</span>
+              </label>
+              <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+              {photoPreview ? (
+                <div className="relative rounded-2xl overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={photoPreview} alt="cover" className="w-full h-44 object-cover" />
+                  <button type="button" onClick={clearPhoto}
+                    className="absolute top-2 right-2 w-8 h-8 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                  <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
+                    Photo uploaded ✓
+                  </div>
+                </div>
+              ) : photoUploading ? (
+                <div className="border-2 border-dashed border-teal-300 rounded-2xl py-8 flex flex-col items-center gap-2 text-teal-600">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <span className="text-sm">Compressing photo…</span>
+                </div>
+              ) : (
+                <button type="button" onClick={() => photoRef.current?.click()}
+                  className="w-full flex flex-col items-center gap-2 border-2 border-dashed border-gray-200 hover:border-teal-400 rounded-2xl py-8 text-gray-400 hover:text-teal-600 transition-colors">
+                  <Upload className="w-8 h-8" />
+                  <span className="text-sm font-semibold">Click to upload a cover photo</span>
+                  <span className="text-xs">JPG, PNG, WebP · Auto compressed</span>
+                </button>
+              )}
+            </div>
+
             {/* Title */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Activity Title *</label>
@@ -154,12 +212,10 @@ export default function NewTripPage() {
 
             {/* From → To route */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
-                <ArrowRightLeft className="w-4 h-4 text-teal-600" /> Route
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <span className="flex items-center gap-1.5"><ArrowRightLeft className="w-4 h-4 text-teal-600" /> Route</span>
               </label>
               <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4">
-
-                {/* FROM */}
                 <div>
                   <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2 flex items-center gap-1">
                     <MapPin className="w-3 h-3" /> Starting Point (From)
@@ -175,8 +231,7 @@ export default function NewTripPage() {
                     </div>
                     <div>
                       <label className="block text-xs text-gray-500 mb-1">City</label>
-                      <select value={form.from} onChange={e => set("from", e.target.value)}
-                        disabled={!form.fromState}
+                      <select value={form.from} onChange={e => set("from", e.target.value)} disabled={!form.fromState}
                         className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 disabled:opacity-40 disabled:cursor-not-allowed">
                         <option value="">Select City</option>
                         {fromCities.map(c => <option key={c}>{c}</option>)}
@@ -184,8 +239,6 @@ export default function NewTripPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Arrow divider */}
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-px bg-gray-200" />
                   <div className="flex items-center gap-1 text-teal-600 bg-teal-50 border border-teal-200 rounded-full px-3 py-1 text-xs font-semibold">
@@ -193,8 +246,6 @@ export default function NewTripPage() {
                   </div>
                   <div className="flex-1 h-px bg-gray-200" />
                 </div>
-
-                {/* TO */}
                 <div>
                   <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2 flex items-center gap-1">
                     <MapPin className="w-3 h-3" /> Destination (To)
@@ -210,8 +261,7 @@ export default function NewTripPage() {
                     </div>
                     <div>
                       <label className="block text-xs text-gray-500 mb-1">City</label>
-                      <select value={form.destination} onChange={e => set("destination", e.target.value)}
-                        disabled={!form.toState}
+                      <select value={form.destination} onChange={e => set("destination", e.target.value)} disabled={!form.toState}
                         className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 disabled:opacity-40 disabled:cursor-not-allowed">
                         <option value="">Select City</option>
                         {toCities.map(c => <option key={c}>{c}</option>)}
@@ -233,19 +283,6 @@ export default function NewTripPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
                 <input type="date" value={form.endDate} onChange={e => set("endDate", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
-              </div>
-            </div>
-
-            {/* Emoji */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Pick a Cover Emoji</label>
-              <div className="flex flex-wrap gap-2">
-                {IMAGES.map(img => (
-                  <button key={img} type="button" onClick={() => set("image", img)}
-                    className={`text-2xl w-10 h-10 rounded-xl border-2 transition-colors ${form.image === img ? "border-teal-600 bg-teal-50" : "border-gray-100 hover:border-teal-200"}`}>
-                    {img}
-                  </button>
-                ))}
               </div>
             </div>
           </div>
@@ -276,8 +313,6 @@ export default function NewTripPage() {
                 ))}
               </div>
             </div>
-
-            {/* Gender preference */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Who Can Join?</label>
               <p className="text-xs text-gray-400 mb-2">Set the gender preference for this activity</p>
@@ -290,8 +325,6 @@ export default function NewTripPage() {
                 ))}
               </div>
             </div>
-
-            {/* Age group */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Age Group</label>
               <p className="text-xs text-gray-400 mb-2">Select one or more age ranges (optional — leave blank for all ages)</p>
@@ -322,8 +355,12 @@ export default function NewTripPage() {
 
         {step === 3 && (
           <div className="space-y-6">
-            <div className="h-32 bg-gradient-to-br from-teal-50 to-teal-100 rounded-2xl flex items-center justify-center text-7xl">
-              {form.image}
+            <div className="h-44 rounded-2xl overflow-hidden bg-gradient-to-br from-teal-100 to-teal-200 flex items-center justify-center">
+              {photoPreview
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={photoPreview} alt="cover" className="w-full h-full object-cover" />
+                : <span className="text-6xl">🏕️</span>
+              }
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">{form.title || "Untitled Trip"}</h2>
@@ -364,7 +401,7 @@ export default function NewTripPage() {
             </div>
             <button onClick={handlePublish}
               className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition-colors">
-              Publish Trip 🚀
+              Publish Activity 🚀
             </button>
           </div>
         )}

@@ -294,10 +294,25 @@ export default function TripsPage() {
           <span><strong className="text-gray-700">{filtered.length}</strong> {filtered.length === 1 ? "activity" : "activities"} found{(activeFilterCount > 0 || activeType !== "All" || query) ? " — matching your filters" : ""}</span>
         </p>
 
-        {filtered.length === 0 && (
+        {filtered.length === 0 && trips.length === 0 && (
+          <div className="text-center py-24 px-4">
+            <div className="text-8xl mb-6">🏕️</div>
+            <h2 className="text-2xl font-extrabold text-gray-800 mb-2">No activities yet — but the trail starts with you!</h2>
+            <p className="text-gray-500 text-base max-w-md mx-auto mb-8">
+              WanderMate is brand new and waiting for its first adventurer. Be the one who kicks things off — host a trek, a road trip, a food walk, anything. Your crew is out there.
+            </p>
+            <Link href="/trips/new"
+              className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 py-3.5 rounded-full text-base transition-all hover:scale-105 shadow-lg shadow-teal-200">
+              🚀 Host the First Activity
+            </Link>
+            <p className="text-gray-400 text-xs mt-4">It takes 2 minutes. No approval needed.</p>
+          </div>
+        )}
+
+        {filtered.length === 0 && trips.length > 0 && (
           <div className="text-center py-24">
             <p className="text-6xl mb-4">🔍</p>
-            <p className="text-xl font-bold text-gray-700">No activities found</p>
+            <p className="text-xl font-bold text-gray-700">No activities match your filters</p>
             <p className="text-gray-400 text-sm mt-2">Try adjusting your filters or <Link href="/trips/new" className="text-teal-600 underline font-medium">host your own</Link></p>
           </div>
         )}
@@ -312,12 +327,12 @@ export default function TripsPage() {
               <div key={trip.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
                 {/* Photo header */}
                 <Link href={`/trips/${trip.id}`} className="block relative h-48 overflow-hidden">
-                  <Image
-                    src={getPhotoUrl(trip.type)}
-                    alt={trip.title}
-                    fill className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    unoptimized
-                  />
+                  {trip.photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={trip.photoUrl} alt={trip.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <Image src={getPhotoUrl(trip.type)} alt={trip.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   {/* Top badges */}
                   <div className="absolute top-3 left-3 flex gap-1.5">
