@@ -12,7 +12,7 @@ interface Message {
 const WELCOME_MSG: Message = {
   id: "welcome",
   from: "bot",
-  text: "Hi! 👋 I'm mayBot — your mayBE assistant.\n\nAsk me anything about activities, hosting, matching, safety, or how mayBE works!",
+  text: "Hi! 👋 I'm letsGO — your mayBE assistant.\n\nAsk me anything about activities, hosting, matching, safety, or how mayBE works!",
 };
 
 const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes in ms
@@ -226,7 +226,7 @@ export default function ChatWidget() {
                 <Bot className="w-4 h-4 text-teal-400" />
               </div>
               <div>
-                <p className="text-white font-bold text-sm">mayBot</p>
+                <p className="text-white font-bold text-sm">letsGO</p>
                 <p className="text-teal-400 text-xs flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse inline-block" />
                   Always online
@@ -326,7 +326,7 @@ export default function ChatWidget() {
         onClick={() => setOpen(o => !o)}
         className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110"
         style={{ background: "linear-gradient(135deg, #0d9488, #065f46)" }}
-        aria-label="Chat with mayBot">
+        aria-label="Chat with letsGO">
         {open
           ? <X className="w-6 h-6 text-white" />
           : <MessageCircle className="w-6 h-6 text-white" />
