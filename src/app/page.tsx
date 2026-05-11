@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ArrowRight, MapPin, ChevronDown, ChevronUp, Users, Shield, Camera, Bike, BookOpen } from "lucide-react";
+import { ArrowRight, MapPin, ChevronDown, ChevronUp, Users, Shield, Camera, Bike, BookOpen, Mail, Phone, MessageCircle, Send, CheckCircle } from "lucide-react";
 
 const U = (id: string, w = 1400, h = 900) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&auto=format&q=80`;
@@ -68,9 +68,75 @@ const HERO_SLIDES = [
 const SLIDES = [
   { id: "hero", label: "Home" },
   { id: "about", label: "About" },
+  { id: "contact", label: "Contact" },
 ];
 
 const H = "calc(100vh - 64px)";
+
+function ContactForm() {
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return;
+    const subject = encodeURIComponent(`WanderMate enquiry from ${form.name}`);
+    const body = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`);
+    window.open(`mailto:pratyushjena1994@gmail.com?subject=${subject}&body=${body}`, "_blank");
+    setSent(true);
+    setTimeout(() => { setSent(false); setForm({ name: "", email: "", message: "" }); }, 4000);
+  };
+
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+      <h3 className="text-white font-bold text-lg mb-1">Send us a message</h3>
+      <p className="text-gray-400 text-sm mb-5">We&apos;ll get back to you within 24 hours.</p>
+
+      {sent ? (
+        <div className="flex flex-col items-center justify-center py-10 gap-3">
+          <div className="w-14 h-14 rounded-full bg-teal-500/20 border border-teal-500/30 flex items-center justify-center">
+            <CheckCircle className="w-7 h-7 text-teal-400" />
+          </div>
+          <p className="text-white font-bold text-lg">Message ready!</p>
+          <p className="text-gray-400 text-sm text-center">Your email client should have opened. We&apos;ll reply soon!</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Your name</label>
+              <input
+                value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Priya Sharma"
+                className="w-full bg-white/8 border border-white/15 text-white placeholder:text-white/30 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Email</label>
+              <input
+                type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="you@email.com"
+                className="w-full bg-white/8 border border-white/15 text-white placeholder:text-white/30 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Message</label>
+            <textarea
+              rows={4} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+              placeholder="Tell us what's on your mind..."
+              className="w-full bg-white/8 border border-white/15 text-white placeholder:text-white/30 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30 resize-none"
+            />
+          </div>
+          <button type="submit"
+            className="w-full flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-6 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg shadow-teal-500/30">
+            <Send className="w-4 h-4" /> Send Message
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   const [current, setCurrent] = useState(0);
@@ -279,6 +345,94 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* ════ SLIDE 3 — CONTACT ════ */}
+        <div
+          ref={el => { slideRefs.current[2] = el; }}
+          className="w-full relative overflow-hidden flex flex-col justify-center"
+          style={{ height: H, scrollSnapAlign: "start", background: "linear-gradient(135deg, #0f172a 0%, #0d3d38 50%, #0f172a 100%)" }}
+        >
+          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+
+          <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex flex-col h-full justify-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+              {/* Left — contact info */}
+              <div>
+                <div className="inline-flex items-center gap-2 bg-teal-500/15 border border-teal-500/30 text-teal-400 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-widest">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" /> Get In Touch
+                </div>
+
+                <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-5">
+                  <span className="text-white">We&apos;d love to<br />hear </span>
+                  <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">from you.</span>
+                </h2>
+
+                <p className="text-gray-300 text-base leading-relaxed mb-8 max-w-md">
+                  Have a question, a partnership idea, or just want to say hi? Reach out — we&apos;re a small team and we reply to every message.
+                </p>
+
+                {/* Contact cards */}
+                <div className="space-y-4 mb-8">
+                  <a href="mailto:pratyushjena1994@gmail.com"
+                    className="flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-teal-500/40 rounded-2xl px-5 py-4 transition-all group">
+                    <div className="w-11 h-11 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center shrink-0">
+                      <Mail className="w-5 h-5 text-teal-400" />
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-widest mb-0.5">Email us</p>
+                      <p className="text-white font-semibold group-hover:text-teal-400 transition-colors">pratyushjena1994@gmail.com</p>
+                    </div>
+                  </a>
+
+                  <a href="tel:+919545997906"
+                    className="flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-teal-500/40 rounded-2xl px-5 py-4 transition-all group">
+                    <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                      <Phone className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-widest mb-0.5">Call us (India)</p>
+                      <p className="text-white font-semibold group-hover:text-emerald-400 transition-colors">+91 95459 97906</p>
+                    </div>
+                  </a>
+
+                  <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-5 py-4">
+                    <div className="w-11 h-11 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0">
+                      <MessageCircle className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-widest mb-0.5">Live chat</p>
+                      <p className="text-white font-semibold">Click the chat icon <span className="text-teal-400">↘</span> bottom right</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hours + social */}
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span className="text-white/70 text-sm">Mon–Sat · 10am–7pm IST</span>
+                  </div>
+                  <a href="https://instagram.com/wandermate.in" target="_blank" rel="noreferrer"
+                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-pink-400/40 rounded-full px-4 py-2 transition-all">
+                    <span className="text-pink-400 text-sm font-bold">IG</span>
+                    <span className="text-white/70 text-sm hover:text-white">@wandermate.in</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Right — quick message form */}
+              <div className="hidden lg:block">
+                <ContactForm />
+              </div>
+            </div>
+          </div>
+
+          <button className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-1 text-white/40 animate-bounce" onClick={() => scrollToSlide(0)}>
+            <ChevronUp className="w-4 h-4" />
+            <span className="text-xs font-medium">Back to top</span>
+          </button>
         </div>
 
       </div>{/* end scroll container */}

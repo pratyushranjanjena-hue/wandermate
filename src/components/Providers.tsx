@@ -3,6 +3,7 @@
 import { AuthProvider } from "@/context/AuthContext";
 import { DataProvider } from "@/context/DataContext";
 import { ToastProvider } from "@/context/ToastContext";
+import ChatWidget from "@/components/ChatWidget";
 import { ReactNode } from "react";
 
 export default function Providers({ children }: { children: ReactNode }) {
@@ -11,6 +12,7 @@ export default function Providers({ children }: { children: ReactNode }) {
       <DataProvider>
         <ToastProvider>
           {children}
+          <ChatWidget />
         </ToastProvider>
       </DataProvider>
     </AuthProvider>
