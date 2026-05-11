@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import { Menu, X, Compass, LogOut, User, ChevronDown, Tent, CalendarDays } from "lucide-react";
+import { Menu, X, LogOut, User, ChevronDown, Tent, CalendarDays } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "./AuthModal";
 import OnboardingModal from "./OnboardingModal";
@@ -42,9 +42,11 @@ export default function Navbar() {
       <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2 font-bold text-xl text-teal-600">
-              <Compass className="w-6 h-6" />
-              WanderMate
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center shrink-0">
+                <span className="text-white font-black text-sm tracking-tight">LZ</span>
+              </div>
+              <span className="font-bold text-xl text-teal-600">Lazy University</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
@@ -139,7 +141,7 @@ export default function Navbar() {
                       </button>
                       <Link href="/trips/new" onClick={() => setShowDropdown(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700">
-                        <Compass className="w-4 h-4" /> Host an Activity
+                        <Tent className="w-4 h-4" /> Host an Activity
                       </Link>
                       <hr className="my-1 border-gray-100" />
                       <button onClick={() => { logout(); setShowDropdown(false); }}

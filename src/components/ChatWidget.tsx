@@ -12,7 +12,7 @@ interface Message {
 const WELCOME_MSG: Message = {
   id: "welcome",
   from: "bot",
-  text: "Hi! 👋 I'm WanderBot — your WanderMate assistant.\n\nAsk me anything about activities, hosting, matching, safety, or how WanderMate works!",
+  text: "Hi! 👋 I'm LazyBot — your Lazy University assistant.\n\nAsk me anything about activities, hosting, matching, safety, or how Lazy University works!",
 };
 
 const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes in ms
@@ -22,15 +22,15 @@ const IDLE_WARNING = 9 * 60 * 1000;  // warn at 9 minutes
 const RULES: { keywords: string[]; reply: string }[] = [
   {
     keywords: ["hi", "hello", "hey", "namaste", "hlo", "hii"],
-    reply: "Hey there! 👋 Welcome to WanderMate — India's community for people who actually show up. What would you like to know?",
+    reply: "Hey there! 👋 Welcome to Lazy University — India's community for people who actually show up. What would you like to know?",
   },
   {
-    keywords: ["what is wandermate", "what is this", "about", "tell me more", "explain"],
-    reply: "WanderMate is India's activity community 🇮🇳\n\nWe connect real people who want to camp, trek, eat, play, create & explore — together. No more waiting for friends who cancel!\n\nYou can:\n• Find activities near you\n• Join a group going to the same place\n• Host your own trip or event\n• Match with people who share your vibe\n• Share your stories with the community",
+    keywords: ["what is lazy-university", "what is this", "about", "tell me more", "explain"],
+    reply: "Lazy University is India's activity community 🇮🇳\n\nWe connect real people who want to camp, trek, eat, play, create & explore — together. No more waiting for friends who cancel!\n\nYou can:\n• Find activities near you\n• Join a group going to the same place\n• Host your own trip or event\n• Match with people who share your vibe\n• Share your stories with the community",
   },
   {
     keywords: ["free", "cost", "price", "charge", "pay", "subscription", "fee"],
-    reply: "WanderMate is completely FREE to join! 🎉\n\nNo subscription, no hidden charges, no paywall.\n\nSome activities hosted by other users may have a participation cost (like ₹800 for a food walk or ₹4,500 for a camping trip) — but those are set by the host, not by us.\n\nCreating an account, browsing, and joining is always free.",
+    reply: "Lazy University is completely FREE to join! 🎉\n\nNo subscription, no hidden charges, no paywall.\n\nSome activities hosted by other users may have a participation cost (like ₹800 for a food walk or ₹4,500 for a camping trip) — but those are set by the host, not by us.\n\nCreating an account, browsing, and joining is always free.",
   },
   {
     keywords: ["how to join", "how do i join", "join trip", "join activity", "sign up", "register", "create account"],
@@ -38,7 +38,7 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
   {
     keywords: ["host", "create trip", "create activity", "organize", "plan a trip", "how to host"],
-    reply: "Hosting on WanderMate takes 3 steps! 🏕️\n\n1. Click 'Host an Activity' from the nav\n2. Fill in details: activity type, dates, location, budget, group size\n3. Set your preferences (who can join, age groups)\n4. Hit Publish!\n\nOther users can then find and join your activity.",
+    reply: "Hosting on Lazy University takes 3 steps! 🏕️\n\n1. Click 'Host an Activity' from the nav\n2. Fill in details: activity type, dates, location, budget, group size\n3. Set your preferences (who can join, age groups)\n4. Hit Publish!\n\nOther users can then find and join your activity.",
   },
   {
     keywords: ["match", "matching", "find people", "compatible", "who to travel with", "travel buddy"],
@@ -50,15 +50,15 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
   {
     keywords: ["activities", "what activities", "types", "camping", "trekking", "food", "sports", "yoga", "cycling", "bike", "content"],
-    reply: "WanderMate covers a wide range of activities! 🎯\n\n⛺ Camping\n🥾 Trekking\n🍜 Food Walks & Food Exploring\n🏐 Sports & Games\n🤝 Social Meetups\n🎬 Content Creation\n🏍️ Bike Rides\n🚗 Road Trips\n🚴 Cycling\n🧘 Yoga & Wellness\n🎒 Backpacking\n🏛️ Heritage Walks\n✈️ Travel\n\nAll across India!",
+    reply: "Lazy University covers a wide range of activities! 🎯\n\n⛺ Camping\n🥾 Trekking\n🍜 Food Walks & Food Exploring\n🏐 Sports & Games\n🤝 Social Meetups\n🎬 Content Creation\n🏍️ Bike Rides\n🚗 Road Trips\n🚴 Cycling\n🧘 Yoga & Wellness\n🎒 Backpacking\n🏛️ Heritage Walks\n✈️ Travel\n\nAll across India!",
   },
   {
     keywords: ["destination", "where", "places", "india", "states", "cities", "location"],
-    reply: "WanderMate covers activities across all of India! 🗺️\n\nSome popular destinations:\n🏔️ Ladakh & Spiti Valley\n🌿 Coorg & Kerala\n❄️ Manali & Himachal\n🏖️ Goa & Konkan\n🏛️ Hampi & Rajasthan\n🌊 Rishikesh & Uttarakhand\n🏜️ Jaisalmer\n\nCheck the Explore page for detailed destination guides!",
+    reply: "Lazy University covers activities across all of India! 🗺️\n\nSome popular destinations:\n🏔️ Ladakh & Spiti Valley\n🌿 Coorg & Kerala\n❄️ Manali & Himachal\n🏖️ Goa & Konkan\n🏛️ Hampi & Rajasthan\n🌊 Rishikesh & Uttarakhand\n🏜️ Jaisalmer\n\nCheck the Explore page for detailed destination guides!",
   },
   {
     keywords: ["post", "story", "blog", "photo", "video", "share", "write"],
-    reply: "You can share your experiences on WanderMate! 📸\n\nGo to the Stories section and click 'Write a Story'\n\nYou can post:\n• 📝 Blogs — full travel writeups\n• 📷 Photos — with captions\n• 🎬 Videos — travel reels & vlogs\n\nOther community members can like, comment, and follow you.",
+    reply: "You can share your experiences on Lazy University! 📸\n\nGo to the Stories section and click 'Write a Story'\n\nYou can post:\n• 📝 Blogs — full travel writeups\n• 📷 Photos — with captions\n• 🎬 Videos — travel reels & vlogs\n\nOther community members can like, comment, and follow you.",
   },
   {
     keywords: ["feed", "following", "followers", "social"],
@@ -74,7 +74,7 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
   {
     keywords: ["profile", "edit profile", "avatar", "bio", "my account"],
-    reply: "Your profile is your WanderMate identity! 👤\n\nFrom the Profile page you can:\n• Upload a photo or pick an emoji avatar\n• Edit your name, city & bio\n• Add your Instagram / website\n• See your posts, trips & events\n• Check your followers & following\n\nComplete your travel quiz from the Match page for even better connections!",
+    reply: "Your profile is your Lazy University identity! 👤\n\nFrom the Profile page you can:\n• Upload a photo or pick an emoji avatar\n• Edit your name, city & bio\n• Add your Instagram / website\n• See your posts, trips & events\n• Check your followers & following\n\nComplete your travel quiz from the Match page for even better connections!",
   },
   {
     keywords: ["delete", "remove", "cancel", "leave trip", "unregister"],
@@ -82,11 +82,11 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
   {
     keywords: ["age", "age group", "who can join", "gender", "filter"],
-    reply: "Every activity on WanderMate has preferences set by the host:\n\n👫 Gender preference:\nEveryone / Males Only / Females Only / Couples / Mixed Groups\n\n🎂 Age groups:\n18–24 / 25–30 / 31–40 / 41–50 / 50+\n\nUse the filters on the Activities page to find exactly the right group for you!",
+    reply: "Every activity on Lazy University has preferences set by the host:\n\n👫 Gender preference:\nEveryone / Males Only / Females Only / Couples / Mixed Groups\n\n🎂 Age groups:\n18–24 / 25–30 / 31–40 / 41–50 / 50+\n\nUse the filters on the Activities page to find exactly the right group for you!",
   },
   {
     keywords: ["app", "mobile", "android", "ios", "download", "play store", "app store"],
-    reply: "WanderMate is currently a web app — works great on mobile browsers! 📱\n\nJust open wandermate-orpin.vercel.app in your phone's browser.\n\nA dedicated mobile app (Android & iOS) is on our roadmap. Stay tuned! 🚀",
+    reply: "Lazy University is currently a web app — works great on mobile browsers! 📱\n\nJust open lazy-university-orpin.vercel.app in your phone's browser.\n\nA dedicated mobile app (Android & iOS) is on our roadmap. Stay tuned! 🚀",
   },
   {
     keywords: ["thank", "thanks", "awesome", "great", "nice", "cool", "good", "perfect"],
@@ -94,14 +94,14 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
   {
     keywords: ["bye", "goodbye", "see you", "later", "ok bye", "ciao"],
-    reply: "Goodbye! 👋 Come back whenever you're ready to explore.\n\nRemember: life's too short to wait for friends who say 'maybe'. Find your tribe on WanderMate! 🌍",
+    reply: "Goodbye! 👋 Come back whenever you're ready to explore.\n\nRemember: life's too short to wait for friends who say 'maybe'. Find your tribe on Lazy University! 🌍",
   },
 ];
 
 const FALLBACK = "Hmm, I'm not sure about that one! 🤔\n\nYou can reach us directly:\n📧 pratyushjena1994@gmail.com\n📞 +91 95459 97906\n\nOr try asking me about:\n• Activities & events\n• How to join or host\n• Safety & matching\n• Pricing & features";
 
 const QUICK_QUESTIONS = [
-  "Is WanderMate free?",
+  "Is Lazy University free?",
   "How do I join a trip?",
   "What activities are there?",
   "How does matching work?",
@@ -226,7 +226,7 @@ export default function ChatWidget() {
                 <Bot className="w-4 h-4 text-teal-400" />
               </div>
               <div>
-                <p className="text-white font-bold text-sm">WanderBot</p>
+                <p className="text-white font-bold text-sm">LazyBot</p>
                 <p className="text-teal-400 text-xs flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse inline-block" />
                   Always online
@@ -326,7 +326,7 @@ export default function ChatWidget() {
         onClick={() => setOpen(o => !o)}
         className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110"
         style={{ background: "linear-gradient(135deg, #0d9488, #065f46)" }}
-        aria-label="Chat with WanderBot">
+        aria-label="Chat with LazyBot">
         {open
           ? <X className="w-6 h-6 text-white" />
           : <MessageCircle className="w-6 h-6 text-white" />

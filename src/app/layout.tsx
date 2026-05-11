@@ -7,7 +7,7 @@ import Providers from "@/components/Providers";
 const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "WanderMate – Find Your Travel Tribe",
+  title: "Lazy University – Find Your Travel Tribe",
   description: "Connect with fellow travelers, join group trips, host events, and discover destinations together.",
 };
 

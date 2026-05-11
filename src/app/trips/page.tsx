@@ -299,7 +299,7 @@ export default function TripsPage() {
             <div className="text-8xl mb-6">🏕️</div>
             <h2 className="text-2xl font-extrabold text-gray-800 mb-2">No activities yet — but the trail starts with you!</h2>
             <p className="text-gray-500 text-base max-w-md mx-auto mb-8">
-              WanderMate is brand new and waiting for its first adventurer. Be the one who kicks things off — host a trek, a road trip, a food walk, anything. Your crew is out there.
+              Lazy University is brand new and waiting for its first adventurer. Be the one who kicks things off — host a trek, a road trip, a food walk, anything. Your crew is out there.
             </p>
             <Link href="/trips/new"
               className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 py-3.5 rounded-full text-base transition-all hover:scale-105 shadow-lg shadow-teal-200">

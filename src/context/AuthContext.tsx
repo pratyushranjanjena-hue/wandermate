@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: key,
       avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
       city,
-      bio: "New to WanderMate. Ready to explore! 🌍",
+      bio: "New to Lazy University. Ready to explore! 🌍",
       verified: false,
       travelStyle: "Mid-range",
       budget: "₹5,000–₹15,000",
