@@ -1,0 +1,38 @@
+<svg width="400" height="100" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0c4a6e"/>
+    </linearGradient>
+    <linearGradient id="m2" x1="16" y1="25" x2="48" y2="75" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+    <linearGradient id="b2" x1="52" y1="25" x2="86" y2="75" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon box -->
+  <rect width="100" height="100" rx="25" fill="url(#bg2)"/>
+
+  <!-- Rotated M -->
+  <path d="M 16,25 L 46,25 L 30,50 L 46,75 L 16,75"
+    stroke="url(#m2)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- B spine -->
+  <line x1="55" y1="25" x2="55" y2="75" stroke="url(#b2)" stroke-width="7.5" stroke-linecap="round"/>
+
+  <!-- B top bump -->
+  <path d="M 55,25 C 71,25 80,31 80,37.5 C 80,44 71,50 55,50"
+    stroke="url(#b2)" stroke-width="7.5" stroke-linecap="round" fill="none"/>
+
+  <!-- B bottom bump (wider) -->
+  <path d="M 55,50 C 73,50 84,56.5 84,62.5 C 84,68.5 73,75 55,75"
+    stroke="url(#b2)" stroke-width="7.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Wordmark -->
+  <text x="118" y="72" font-family="'Segoe UI', Arial, sans-serif" font-weight="800" font-size="58" fill="#0d9488" letter-spacing="-2">may</text>
+  <text x="258" y="72" font-family="'Segoe UI', Arial, sans-serif" font-weight="800" font-size="58" fill="#0284c7" letter-spacing="-2">BE</text>
+</svg>
