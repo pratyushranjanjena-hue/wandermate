@@ -83,6 +83,8 @@ export default function TripsPage() {
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [maxBudget, setMaxBudget] = useState(MAX_BUDGET);
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [selectedGender, setSelectedGender] = useState("All");
+  const [selectedAge, setSelectedAge] = useState("All");
 
   const cityOptions = useMemo(() => {
     if (selectedState === "All") return [];
@@ -102,6 +104,8 @@ export default function TripsPage() {
     selectedMonth !== "All",
     maxBudget < MAX_BUDGET,
     availableOnly,
+    selectedGender !== "All",
+    selectedAge !== "All",
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -110,6 +114,8 @@ export default function TripsPage() {
     setSelectedMonth("All");
     setMaxBudget(MAX_BUDGET);
     setAvailableOnly(false);
+    setSelectedGender("All");
+    setSelectedAge("All");
   };
 
   const filtered = trips.filter(t => {
@@ -126,6 +132,13 @@ export default function TripsPage() {
     }
     if (maxBudget < MAX_BUDGET && parseBudget(t.budget) > maxBudget) return false;
     if (availableOnly && t.joinedUsers.length >= t.totalSpots) return false;
+    if (selectedGender !== "All") {
+      const pref = t.genderPreference ?? "Everyone";
+      if (pref !== "Everyone" && pref !== selectedGender) return false;
+    }
+    if (selectedAge !== "All") {
+      if (t.ageGroups && t.ageGroups.length > 0 && !t.ageGroups.includes(selectedAge)) return false;
+    }
     return true;
   });
 
@@ -176,7 +189,7 @@ export default function TripsPage() {
       {/* Filter panel */}
       {showFilters && (
         <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-5 space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
             {/* State */}
             <div>
@@ -190,7 +203,7 @@ export default function TripsPage() {
               </select>
             </div>
 
-            {/* City — only active when a state is picked */}
+            {/* City */}
             <div>
               <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">
                 City
@@ -215,6 +228,33 @@ export default function TripsPage() {
                 {months.map(m => (
                   <option key={m} value={m}>{formatMonth(m + "-01")}</option>
                 ))}
+              </select>
+            </div>
+
+            {/* Who can join (gender) */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Who Can Join</label>
+              <select value={selectedGender} onChange={e => setSelectedGender(e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300">
+                <option value="All">Everyone</option>
+                <option value="Males Only">Males Only</option>
+                <option value="Females Only">Females Only</option>
+                <option value="Couples">Couples</option>
+                <option value="Mixed Groups">Mixed Groups</option>
+              </select>
+            </div>
+
+            {/* Age group */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Age Group</label>
+              <select value={selectedAge} onChange={e => setSelectedAge(e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300">
+                <option value="All">All Ages</option>
+                <option value="18–24">18–24</option>
+                <option value="25–30">25–30</option>
+                <option value="31–40">31–40</option>
+                <option value="41–50">41–50</option>
+                <option value="50+">50+</option>
               </select>
             </div>
 
@@ -332,6 +372,18 @@ export default function TripsPage() {
                 )}
                 <p className="text-gray-500 text-sm flex items-center gap-1 mt-1"><Calendar className="w-3 h-3 shrink-0" /> {trip.startDate} → {trip.endDate}</p>
                 <p className="text-gray-500 text-sm flex items-center gap-1 mt-1"><Users className="w-3 h-3 shrink-0" /> Hosted by {trip.hostName}</p>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {trip.genderPreference && trip.genderPreference !== "Everyone" && (
+                    <span className="text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-full font-medium">
+                      {trip.genderPreference === "Females Only" ? "👩 " : trip.genderPreference === "Males Only" ? "👨 " : trip.genderPreference === "Couples" ? "💑 " : "🤝 "}{trip.genderPreference}
+                    </span>
+                  )}
+                  {trip.ageGroups && trip.ageGroups.length > 0 && (
+                    <span className="text-xs bg-purple-50 text-purple-700 border border-purple-100 px-2 py-0.5 rounded-full font-medium">
+                      🎂 {trip.ageGroups.join(", ")}
+                    </span>
+                  )}
+                </div>
                 <div className="mt-3 flex items-center justify-between text-sm">
                   <div><span className="font-bold text-gray-900">{trip.budget}</span><span className="text-gray-400"> /person</span></div>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${trip.difficulty === "Easy" ? "bg-green-100 text-green-700" : trip.difficulty === "Moderate" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>

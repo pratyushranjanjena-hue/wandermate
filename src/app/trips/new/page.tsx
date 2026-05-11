@@ -66,7 +66,14 @@ export default function NewTripPage() {
     startDate: "", endDate: "",
     totalSpots: "8", budget: "", difficulty: "Moderate" as Trip["difficulty"],
     description: "", whatToBring: "", image: "🏔️",
+    genderPreference: "Everyone" as NonNullable<Trip["genderPreference"]>,
+    ageGroups: [] as string[],
   });
+
+  const toggleAge = (age: string) => setForm(f => ({
+    ...f,
+    ageGroups: f.ageGroups.includes(age) ? f.ageGroups.filter(a => a !== age) : [...f.ageGroups, age],
+  }));
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
@@ -95,6 +102,8 @@ export default function NewTripPage() {
       joinedUsers: [user.id],
       description: form.description,
       whatToBring: form.whatToBring,
+      genderPreference: form.genderPreference,
+      ageGroups: form.ageGroups.length > 0 ? form.ageGroups : undefined,
       createdAt: new Date().toISOString().split("T")[0],
     };
     addTrip(trip);
@@ -267,6 +276,35 @@ export default function NewTripPage() {
                 ))}
               </div>
             </div>
+
+            {/* Gender preference */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Who Can Join?</label>
+              <p className="text-xs text-gray-400 mb-2">Set the gender preference for this activity</p>
+              <div className="flex flex-wrap gap-2">
+                {(["Everyone", "Males Only", "Females Only", "Couples", "Mixed Groups"] as const).map(g => (
+                  <button key={g} type="button" onClick={() => set("genderPreference", g)}
+                    className={`px-4 py-2 border rounded-full text-sm font-medium transition-colors ${form.genderPreference === g ? "border-teal-600 bg-teal-50 text-teal-700" : "border-gray-200 hover:border-teal-300 text-gray-600"}`}>
+                    {g === "Everyone" ? "👥 Everyone" : g === "Males Only" ? "👨 Males Only" : g === "Females Only" ? "👩 Females Only" : g === "Couples" ? "💑 Couples" : "🤝 Mixed Groups"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Age group */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Age Group</label>
+              <p className="text-xs text-gray-400 mb-2">Select one or more age ranges (optional — leave blank for all ages)</p>
+              <div className="flex flex-wrap gap-2">
+                {["18–24", "25–30", "31–40", "41–50", "50+"].map(age => (
+                  <button key={age} type="button" onClick={() => toggleAge(age)}
+                    className={`px-4 py-2 border rounded-full text-sm font-medium transition-colors ${form.ageGroups.includes(age) ? "border-teal-600 bg-teal-50 text-teal-700" : "border-gray-200 hover:border-teal-300 text-gray-600"}`}>
+                    {age}
+                  </button>
+                ))}
+              </div>
+              {form.ageGroups.length === 0 && <p className="text-xs text-gray-400 mt-1.5">No selection = open to all ages</p>}
+            </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Trip Description *</label>
               <textarea rows={5} value={form.description} onChange={e => set("description", e.target.value)}
@@ -307,6 +345,16 @@ export default function NewTripPage() {
               <div><p className="font-bold text-gray-900">{form.totalSpots}</p><p className="text-xs text-gray-500">Max travelers</p></div>
               <div><p className="font-bold text-gray-900">₹{form.budget || "TBD"}</p><p className="text-xs text-gray-500">Per person</p></div>
               <div><p className="font-bold text-gray-900">{form.difficulty}</p><p className="text-xs text-gray-500">Difficulty</p></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                <p className="text-xs text-blue-500 font-semibold mb-0.5">Who Can Join</p>
+                <p className="font-bold text-gray-900">{form.genderPreference}</p>
+              </div>
+              <div className="bg-purple-50 border border-purple-100 rounded-xl p-3">
+                <p className="text-xs text-purple-500 font-semibold mb-0.5">Age Groups</p>
+                <p className="font-bold text-gray-900">{form.ageGroups.length > 0 ? form.ageGroups.join(", ") : "All ages"}</p>
+              </div>
             </div>
             <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 text-sm text-gray-700 space-y-2">
               <p>✅ ID Verification required for all joiners</p>

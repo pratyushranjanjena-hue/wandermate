@@ -112,6 +112,18 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
               <div className="flex justify-between"><span className="text-gray-500">Spots Available</span><span className="font-semibold text-gray-900">{trip.totalSpots - trip.joinedUsers.length}/{trip.totalSpots}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Difficulty</span><span className="font-semibold text-gray-900">{trip.difficulty}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Type</span><span className="font-semibold text-gray-900">{trip.type}</span></div>
+              {trip.genderPreference && trip.genderPreference !== "Everyone" && (
+                <div className="flex justify-between"><span className="text-gray-500">Open to</span><span className="font-semibold text-gray-900">{trip.genderPreference}</span></div>
+              )}
+              {trip.genderPreference === "Everyone" && (
+                <div className="flex justify-between"><span className="text-gray-500">Open to</span><span className="font-semibold text-green-700">Everyone</span></div>
+              )}
+              {trip.ageGroups && trip.ageGroups.length > 0 && (
+                <div className="flex justify-between"><span className="text-gray-500">Age Group</span><span className="font-semibold text-gray-900">{trip.ageGroups.join(", ")}</span></div>
+              )}
+              {(!trip.ageGroups || trip.ageGroups.length === 0) && (
+                <div className="flex justify-between"><span className="text-gray-500">Age Group</span><span className="font-semibold text-green-700">All ages</span></div>
+              )}
             </div>
 
             <div className="mb-4">
