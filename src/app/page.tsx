@@ -80,7 +80,7 @@ function ContactForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return;
-    const subject = encodeURIComponent(`Lazy University enquiry from ${form.name}`);
+    const subject = encodeURIComponent(`mayBE enquiry from ${form.name}`);
     const body = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`);
     window.open(`mailto:pratyushjena1994@gmail.com?subject=${subject}&body=${body}`, "_blank");
     setSent(true);
@@ -213,7 +213,7 @@ export default function Home() {
               </h1>
 
               <p className="text-gray-300 text-base leading-relaxed mb-6">
-                Lazy University connects real people across India who want to <strong className="text-white">camp, trek, eat, play, create &amp; explore</strong> — with others who actually show up.
+                mayBE connects real people across India who want to <strong className="text-white">camp, trek, eat, play, create &amp; explore</strong> — with others who actually show up.
               </p>
 
               <div className="flex flex-col gap-2.5 mb-7">
@@ -297,7 +297,7 @@ export default function Home() {
 
               <div>
                 <div className="inline-flex items-center gap-2 bg-teal-500/15 border border-teal-500/30 text-teal-400 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-widest">
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" /> About Lazy University
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" /> About mayBE
                 </div>
 
                 <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-5">
@@ -306,7 +306,7 @@ export default function Home() {
                 </h2>
 
                 <p className="text-gray-300 text-base leading-relaxed mb-6 max-w-md">
-                  Lazy University is India&apos;s community for real experiences — not just travel. Whether it&apos;s a camping trip, a food walk, a sports meetup, or a content collab — find your people and just go.
+                  mayBE is India&apos;s community for real experiences — not just travel. Whether it&apos;s a camping trip, a food walk, a sports meetup, or a content collab — find your people and just go.
                 </p>
 
                 <div className="flex flex-wrap gap-2 mb-8">

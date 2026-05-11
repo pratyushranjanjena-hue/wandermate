@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import AuthModal from "./AuthModal";
 import OnboardingModal from "./OnboardingModal";
 import { UserAvatar } from "./AvatarPicker";
+import MaybeLogo from "./MaybeLogo";
 
 const navLinks = [
   { href: "/feed", label: "Feed" },
@@ -42,11 +43,8 @@ export default function Navbar() {
       <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center shrink-0">
-                <span className="text-white font-black text-sm tracking-tight">LZ</span>
-              </div>
-              <span className="font-bold text-xl text-teal-600">Lazy University</span>
+            <Link href="/">
+              <MaybeLogo size={36} nameSize="md" />
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
