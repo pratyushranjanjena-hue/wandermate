@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 
 interface Message {
@@ -8,6 +8,15 @@ interface Message {
   from: "bot" | "user";
   text: string;
 }
+
+const WELCOME_MSG: Message = {
+  id: "welcome",
+  from: "bot",
+  text: "Hi! 👋 I'm WanderBot — your WanderMate assistant.\n\nAsk me anything about activities, hosting, matching, safety, or how WanderMate works!",
+};
+
+const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes in ms
+const IDLE_WARNING = 9 * 60 * 1000;  // warn at 9 minutes
 
 // ── Rule book ────────────────────────────────────────────────────────────────
 const RULES: { keywords: string[]; reply: string }[] = [
@@ -107,25 +116,85 @@ function getBotReply(input: string): string {
   return FALLBACK;
 }
 
+const FRESH_MESSAGES = (): Message[] => [WELCOME_MSG];
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      from: "bot",
-      text: "Hi! 👋 I'm WanderBot — your WanderMate assistant.\n\nAsk me anything about activities, hosting, matching, safety, or how WanderMate works!",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(FRESH_MESSAGES());
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [idleWarning, setIdleWarning] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ── Reset conversation ─────────────────────────────────────────────────────
+  const resetChat = useCallback(() => {
+    setMessages(FRESH_MESSAGES());
+    setInput("");
+    setTyping(false);
+    setIdleWarning(false);
+  }, []);
+
+  // ── Close chat (X button) — clears conversation ───────────────────────────
+  const closeChat = useCallback(() => {
+    setOpen(false);
+    resetChat();
+  }, [resetChat]);
+
+  // ── Idle timer logic ───────────────────────────────────────────────────────
+  const clearTimers = useCallback(() => {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    if (warnTimerRef.current) clearTimeout(warnTimerRef.current);
+  }, []);
+
+  const resetIdleTimer = useCallback(() => {
+    clearTimers();
+    setIdleWarning(false);
+    if (!open) return;
+
+    // Warn at 9 minutes
+    warnTimerRef.current = setTimeout(() => {
+      setIdleWarning(true);
+    }, IDLE_WARNING);
+
+    // Auto-close + reset at 10 minutes
+    idleTimerRef.current = setTimeout(() => {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: `idle_${Date.now()}`,
+          from: "bot",
+          text: "👋 This chat has been closed due to inactivity. Come back anytime!\n\nStarting a fresh conversation...",
+        },
+      ]);
+      setTimeout(() => {
+        setOpen(false);
+        resetChat();
+      }, 2000);
+    }, IDLE_TIMEOUT);
+  }, [open, clearTimers, resetChat]);
+
+  // Start/reset idle timer whenever the chat opens or user interacts
+  useEffect(() => {
+    if (open) {
+      resetIdleTimer();
+    } else {
+      clearTimers();
+      setIdleWarning(false);
+    }
+    return clearTimers;
+  }, [open, resetIdleTimer, clearTimers]);
+
+  // Scroll to bottom on new message
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-  const send = (text: string) => {
+  // ── Send message ───────────────────────────────────────────────────────────
+  const send = useCallback((text: string) => {
     if (!text.trim()) return;
+    resetIdleTimer(); // user is active
     const userMsg: Message = { id: `u_${Date.now()}`, from: "user", text: text.trim() };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
@@ -135,7 +204,7 @@ export default function ChatWidget() {
       setMessages(prev => [...prev, { id: `b_${Date.now()}`, from: "bot", text: reply }]);
       setTyping(false);
     }, 700);
-  };
+  }, [resetIdleTimer]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +217,7 @@ export default function ChatWidget() {
       {open && (
         <div className="fixed bottom-20 right-5 z-50 w-80 sm:w-96 flex flex-col rounded-2xl shadow-2xl overflow-hidden border border-gray-200"
           style={{ height: "480px" }}>
+
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 shrink-0"
             style={{ background: "linear-gradient(135deg, #0f172a 0%, #0d3d38 100%)" }}>
@@ -163,10 +233,25 @@ export default function ChatWidget() {
                 </p>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="text-white/60 hover:text-white transition-colors">
+            {/* X button — closes AND resets chat */}
+            <button
+              onClick={closeChat}
+              title="Close and clear conversation"
+              className="text-white/60 hover:text-white transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Idle warning banner */}
+          {idleWarning && (
+            <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between shrink-0">
+              <p className="text-amber-700 text-xs font-medium">⏱️ Still there? Chat closes in 1 min due to inactivity.</p>
+              <button onClick={() => { resetIdleTimer(); send("I'm still here!"); }}
+                className="text-xs font-bold text-amber-700 underline ml-2 shrink-0">
+                I&apos;m here
+              </button>
+            </div>
+          )}
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto bg-gray-50 px-3 py-4 space-y-3">
@@ -207,7 +292,7 @@ export default function ChatWidget() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Quick questions */}
+          {/* Quick questions — only on first open */}
           {messages.length <= 1 && (
             <div className="bg-gray-50 border-t border-gray-100 px-3 py-2 flex gap-1.5 flex-wrap shrink-0">
               {QUICK_QUESTIONS.map(q => (
@@ -224,6 +309,7 @@ export default function ChatWidget() {
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
+              onKeyDown={() => resetIdleTimer()}
               placeholder="Ask me anything..."
               className="flex-1 text-sm border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300"
             />
