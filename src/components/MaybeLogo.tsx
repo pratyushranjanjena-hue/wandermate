@@ -23,65 +23,68 @@ export default function MaybeLogo({ size = 36, showName = true, nameSize = "md" 
         className="shrink-0"
       >
         <defs>
-          {/* Background fill */}
           <linearGradient id="mb-bg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#0f172a" />
             <stop offset="100%" stopColor="#0c4a6e" />
           </linearGradient>
-          {/* M stroke — teal */}
           <linearGradient id="mb-m" x1="7" y1="11" x2="21" y2="33" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#2dd4bf" />
             <stop offset="100%" stopColor="#0d9488" />
           </linearGradient>
-          {/* B stroke — blue */}
-          <linearGradient id="mb-b" x1="22" y1="11" x2="37" y2="33" gradientUnits="userSpaceOnUse">
+          <linearGradient id="mb-b" x1="23" y1="11" x2="38" y2="33" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#38bdf8" />
             <stop offset="100%" stopColor="#0284c7" />
           </linearGradient>
         </defs>
 
-        {/* Dark rounded-square background */}
+        {/* Background */}
         <rect width="44" height="44" rx="11" fill="url(#mb-bg)" />
 
         {/*
-          Rotated M — the letter M turned 90° CW so both peaks point RIGHT.
-          Path reads: left-top spine → top-right peak → center-left valley → bottom-right peak → left-bottom spine
-          This creates the double-chevron "zig" shape you showed in the image.
+          M rotated 90° CW — peaks pointing right.
+          Reads as a zigzag: left-column → right-peak → middle-valley → right-peak → left-column
         */}
         <path
-          d="M 7,11 L 21,11 L 14,22 L 21,33 L 7,33"
+          d="M 7,11 L 20,11 L 13,22 L 20,33 L 7,33"
           stroke="url(#mb-m)"
-          strokeWidth="3.2"
+          strokeWidth="3.4"
           strokeLinecap="round"
           strokeLinejoin="round"
           fill="none"
         />
 
         {/*
-          Capital B — spine on left, two bumps curving right.
-          Top bump is slightly smaller; bottom bump is larger (classic B proportions).
+          Capital B — vertical spine + two round bumps.
+          Each bump is drawn as two cubic bezier arcs meeting at the rightmost point,
+          giving a proper semicircular D shape (not a teardrop).
+
+          Top bump:  spine(24,11) → right apex(35,16.5) → spine(24,22)
+          Bottom bump: spine(24,22) → right apex(37,27.5) → spine(24,33)
+          Bottom bump is intentionally wider than top — classic B proportions.
         */}
+
         {/* Spine */}
-        <path
-          d="M 23,11 L 23,33"
+        <line
+          x1="24" y1="11" x2="24" y2="33"
           stroke="url(#mb-b)"
-          strokeWidth="3.2"
+          strokeWidth="3.4"
+          strokeLinecap="round"
+        />
+
+        {/* Top bump — two arcs through apex (35, 16.5) */}
+        <path
+          d="M 24,11 C 31,11 35,13.5 35,16.5 C 35,19.5 31,22 24,22"
+          stroke="url(#mb-b)"
+          strokeWidth="3.4"
           strokeLinecap="round"
           fill="none"
         />
-        {/* Top bump */}
+
+        {/* Bottom bump — two arcs through apex (37, 27.5), slightly wider */}
         <path
-          d="M 23,11 C 34,11 34,22 23,22"
+          d="M 24,22 C 32,22 37,24.8 37,27.5 C 37,30.2 32,33 24,33"
           stroke="url(#mb-b)"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          fill="none"
-        />
-        {/* Bottom bump — slightly wider */}
-        <path
-          d="M 23,22 C 37,22 37,33 23,33"
-          stroke="url(#mb-b)"
-          strokeWidth="3.2"
+          strokeWidth="3.4"
           strokeLinecap="round"
           fill="none"
         />
