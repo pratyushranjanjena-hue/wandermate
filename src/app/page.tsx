@@ -20,7 +20,7 @@ const HERO_SLIDES = [
   },
   {
     id: "hero-2",
-    bg: U("photo-1555396273-367ea4eb4db5"),
+    bg: U("photo-1567337710282-00832b415979"),
     tag: "Food Exploring", label: "02",
     title: "India's Best Street Food Walks",
     subtitle: "Eat your way through Mumbai, Delhi, Hyderabad with locals who know every stall",
@@ -67,7 +67,7 @@ const HERO_SLIDES = [
 
 const TRIPS = [
   { id: "t1", title: "Coorg Camping Weekend", destination: "Coorg, Karnataka", date: "Jun 7–9", type: "Camping", img: U("photo-1504280390367-361c6d9f38f4", 600, 400), budget: "₹4,500" },
-  { id: "t2", title: "Mumbai Street Food Safari", destination: "Mumbai, Maharashtra", date: "May 24", type: "Food Exploring", img: U("photo-1555396273-367ea4eb4db5", 600, 400), budget: "₹1,200" },
+  { id: "t2", title: "Mumbai Street Food Safari", destination: "Mumbai, Maharashtra", date: "May 24", type: "Food Exploring", img: U("photo-1567337710282-00832b415979", 600, 400), budget: "₹1,200" },
   { id: "t3", title: "Manali Snow Trek", destination: "Manali, HP", date: "Jul 1–7", type: "Trekking", img: U("photo-1602853238986-89bc0191754b", 600, 400), budget: "₹12,000" },
   { id: "t4", title: "Goa Beach Sports Meetup", destination: "Goa", date: "Jun 5–7", type: "Sports & Games", img: U("photo-1530549387789-4c1017266635", 600, 400), budget: "₹3,000" },
   { id: "t5", title: "Bangalore Cyclists Sunrise Ride", destination: "Nandi Hills, Karnataka", date: "May 30–31", type: "Cycling", img: U("photo-1476611338391-6f395a0ebc7b", 600, 400), budget: "₹1,500" },
@@ -76,7 +76,7 @@ const TRIPS = [
 
 const EVENTS = [
   { id: "e1", title: "Midnight Camping at Pondicherry Beach", location: "Pondicherry", date: "May 25, 2026", type: "Camping", price: "₹1,800", img: U("photo-1504280390367-361c6d9f38f4", 600, 400), badge: "Featured" },
-  { id: "e2", title: "Delhi Street Food Photography Walk", location: "Old Delhi", date: "June 1, 2026", type: "Food Walk", price: "₹800", img: U("photo-1555396273-367ea4eb4db5", 600, 400), badge: "New" },
+  { id: "e2", title: "Delhi Street Food Photography Walk", location: "Old Delhi", date: "June 1, 2026", type: "Food Walk", price: "₹800", img: U("photo-1567337710282-00832b415979", 600, 400), badge: "New" },
   { id: "e3", title: "Bangalore Boardgames & Brunch", location: "Koramangala, Bengaluru", date: "May 18, 2026", type: "Social Meetup", price: "Free", img: U("photo-1511632765486-a01980e01a18", 600, 400), badge: null },
   { id: "e4", title: "Sahyadri Monsoon Trek", location: "Lonavala, Maharashtra", date: "July 5, 2026", type: "Trekking", img: U("photo-1602853238986-89bc0191754b", 600, 400), price: "₹800", badge: null },
   { id: "e5", title: "Travel Reels & Content Bootcamp", location: "Bengaluru", date: "June 14, 2026", type: "Content Creation", price: "₹1,200", img: U("photo-1492691527719-9d1e07e534b4", 600, 400), badge: "New" },
@@ -85,7 +85,7 @@ const EVENTS = [
 
 const POSTS = [
   { id: "p1", type: "blog", location: "Coorg, Karnataka", title: "My First Camping Trip — What I Packed, What I Forgot", img: U("photo-1504280390367-361c6d9f38f4", 600, 400), tag: "Camping" },
-  { id: "p2", type: "photo", location: "Mumbai", title: "Mumbai Street Food at 2am — A Photo Essay", img: U("photo-1555396273-367ea4eb4db5", 600, 400), tag: "Food" },
+  { id: "p2", type: "photo", location: "Mumbai", title: "Mumbai Street Food at 2am — A Photo Essay", img: U("photo-1567337710282-00832b415979", 600, 400), tag: "Food" },
   { id: "p3", type: "blog", location: "Bengaluru", title: "How I Made 20 New Friends Over Board Games", img: U("photo-1511632765486-a01980e01a18", 600, 400), tag: "Social" },
   { id: "p4", type: "video", location: "Manali, HP", title: "How We Shot a Travel Reel on Just a Phone", img: U("photo-1492691527719-9d1e07e534b4", 600, 400), tag: "Content Creation" },
   { id: "p5", type: "blog", location: "Rishikesh", title: "I Did a Yoga Retreat as a Skeptic — Here's What Happened", img: U("photo-1545389336-cf090694435e", 600, 400), tag: "Wellness" },
