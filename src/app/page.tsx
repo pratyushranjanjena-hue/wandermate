@@ -401,51 +401,69 @@ export default function Home() {
         {/* ════ SLIDE 5 — ABOUT ════ */}
         <div
           ref={el => { slideRefs.current[4] = el; }}
-          className="w-full bg-white flex flex-col justify-center overflow-hidden"
-          style={{ height: H, scrollSnapAlign: "start" }}
+          className="w-full relative overflow-hidden flex flex-col justify-center"
+          style={{ height: H, scrollSnapAlign: "start", background: "linear-gradient(135deg, #0f172a 0%, #0d3d38 50%, #0f172a 100%)" }}
         >
-          <div className="max-w-6xl mx-auto px-6 w-full flex flex-col h-full justify-center">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* subtle grid texture */}
+          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+
+          <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex flex-col h-full justify-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+              {/* LEFT — manifesto */}
               <div>
-                <span className="text-teal-600 text-xs font-bold uppercase tracking-widest">05 / About WanderMate</span>
-                <h2 className="text-4xl font-extrabold text-gray-900 mt-2 mb-6 leading-tight">Built for People Who Want to Do More Together</h2>
-                <div className="space-y-4 mb-8">
-                  {[
-                    { icon: <Users className="w-5 h-5 text-teal-600" />, title: "Find Your People", desc: "Match with others who share your interests — camping, food, sports, travel, or content creation." },
-                    { icon: <Shield className="w-5 h-5 text-teal-600" />, title: "Safe & Verified", desc: "ID verified profiles, SOS button, and live location sharing for every activity." },
-                    { icon: <Camera className="w-5 h-5 text-teal-600" />, title: "Share Your Story", desc: "Write blogs, post photos and videos. Build your creator and traveler profile." },
-                    { icon: <Bike className="w-5 h-5 text-teal-600" />, title: "Host Any Activity", desc: "Camping, treks, food walks, sports, meetups — create your group in 3 steps." },
-                    { icon: <BookOpen className="w-5 h-5 text-teal-600" />, title: "Discover Anywhere", desc: "Search any place and find real activities, blogs, photos and local tips." },
-                  ].map(item => (
-                    <div key={item.title} className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-teal-50 rounded-xl flex items-center justify-center shrink-0">{item.icon}</div>
-                      <div><p className="font-bold text-gray-900 text-sm">{item.title}</p><p className="text-gray-500 text-sm">{item.desc}</p></div>
-                    </div>
+                <div className="inline-flex items-center gap-2 bg-teal-500/15 border border-teal-500/30 text-teal-400 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-widest">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" /> India&apos;s activity community
+                </div>
+
+                <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-6">
+                  <span className="text-white">Your friends said </span>
+                  <span className="text-red-400 line-through opacity-70">&ldquo;maybe&rdquo;</span>
+                  <span className="text-white">.<br />We said </span>
+                  <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">&ldquo;let&apos;s go.&rdquo;</span>
+                </h2>
+
+                <p className="text-gray-300 text-lg leading-relaxed mb-8 max-w-md">
+                  WanderMate connects real people across India who want to <strong className="text-white">camp, trek, eat, play, create, and explore</strong> — together. No more waiting. No more cancelling. Just show up.
+                </p>
+
+                {/* Activity pills */}
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {[["⛺","Camping"],["🥾","Trekking"],["🍜","Food Walks"],["🏐","Sports"],["🎬","Content"],["🧘","Wellness"],["🚴","Cycling"],["🤝","Social"]].map(([emoji, label]) => (
+                    <span key={label} className="flex items-center gap-1.5 bg-white/8 hover:bg-white/15 border border-white/10 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full transition-colors cursor-default">
+                      {emoji} {label}
+                    </span>
                   ))}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Link href="/trips"
+                    className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-7 py-3.5 rounded-full text-sm transition-all hover:scale-105 shadow-lg shadow-teal-500/25">
+                    Find an Activity <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link href="/trips/new"
+                    className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-7 py-3.5 rounded-full text-sm transition-all backdrop-blur-sm">
+                    Host One Yourself
+                  </Link>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="relative rounded-3xl overflow-hidden h-52 shadow-2xl">
-                  <Image src={U("photo-1506869640319-fe1a24fd76dc", 800, 400)} alt="Group activities" fill className="object-cover" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-600/80 to-teal-800/60" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-6">
-                    <div className="text-4xl mb-2">🌍</div>
-                    <h3 className="text-xl font-extrabold mb-1">Ready to Explore?</h3>
-                    <p className="text-teal-100 text-sm mb-4">Be among the first to join WanderMate — just launched!</p>
-                    <div className="flex gap-3">
-                      <Link href="/trips" className="bg-white text-teal-700 hover:bg-teal-50 font-bold py-2 px-5 rounded-full transition-colors text-sm">Browse Activities →</Link>
-                      <Link href="/trips/new" className="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold py-2 px-5 rounded-full transition-colors text-sm">Host an Activity</Link>
-                    </div>
+
+              {/* RIGHT — feature cards */}
+              <div className="hidden lg:grid grid-cols-2 gap-3">
+                {[
+                  { emoji: "👥", title: "Find Your People", desc: "Match with others who share your vibe — filters for gender, age, budget & city.", color: "from-teal-500/20 to-teal-600/10 border-teal-500/20" },
+                  { emoji: "🗓️", title: "Host in 3 Steps", desc: "Create an activity, set your preferences, publish. People find you.", color: "from-emerald-500/20 to-emerald-600/10 border-emerald-500/20" },
+                  { emoji: "📖", title: "Share Stories", desc: "Blogs, photos, videos. Build your explorer profile and inspire others.", color: "from-indigo-500/20 to-indigo-600/10 border-indigo-500/20" },
+                  { emoji: "🛡️", title: "Safe & Trusted", desc: "Verified profiles, group preferences, and transparent hosting — always.", color: "from-rose-500/20 to-rose-600/10 border-rose-500/20" },
+                  { emoji: "🗺️", title: "All of India", desc: "Every state, every city. From Ladakh to Kanyakumari, we've got you covered.", color: "from-amber-500/20 to-amber-600/10 border-amber-500/20" },
+                  { emoji: "🆓", title: "Free to Join", desc: "No subscription, no paywall. Just sign up and start exploring.", color: "from-purple-500/20 to-purple-600/10 border-purple-500/20" },
+                ].map(card => (
+                  <div key={card.title} className={`bg-gradient-to-br ${card.color} border rounded-2xl p-4 backdrop-blur-sm`}>
+                    <div className="text-2xl mb-2">{card.emoji}</div>
+                    <p className="font-bold text-white text-sm mb-1">{card.title}</p>
+                    <p className="text-gray-400 text-xs leading-relaxed">{card.desc}</p>
                   </div>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {[["🏕️", "Camping"], ["🥾", "Trekking"], ["🍜", "Food Walks"], ["🏐", "Sports"], ["📸", "Content"], ["🧘", "Wellness"]].map(([e, l]) => (
-                    <Link href="/events" key={l} className="bg-gray-50 hover:bg-teal-50 border border-gray-100 hover:border-teal-200 rounded-xl p-3 text-center transition-colors">
-                      <div className="text-2xl mb-1">{e}</div>
-                      <p className="text-xs font-medium text-gray-700">{l}</p>
-                    </Link>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
           </div>
