@@ -182,29 +182,40 @@ export default function Home() {
           <div className="relative z-10 h-full flex items-center">
             <div className="max-w-6xl mx-auto px-6 w-full">
               <div className="max-w-2xl">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="bg-teal-500/90 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">{hs.tag}</span>
-                  <span className="text-white/70 text-sm flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" />{hs.location}</span>
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="bg-teal-500/90 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">WanderMate</span>
+                  <span className="text-white/60 text-xs border border-white/20 px-2.5 py-1 rounded-full">🇮🇳 Free · Open Beta</span>
                 </div>
-                <h1 className="text-5xl sm:text-6xl font-extrabold text-white leading-tight mb-4 drop-shadow-lg">{hs.title}</h1>
-                <p className="text-lg text-white/75 mb-3">{hs.subtitle}</p>
-                <div className="flex items-center gap-3 mb-8">
-                  <span className="text-white/60 text-sm">{hs.meta}</span>
-                  <span className="w-1 h-1 rounded-full bg-white/40" />
-                  <span className="bg-green-400/20 text-green-300 text-sm font-semibold px-2.5 py-0.5 rounded-full border border-green-400/30">{hs.spots}</span>
+                <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-3 drop-shadow-lg">
+                  Stop waiting for<br />
+                  <span className="bg-gradient-to-r from-teal-400 to-emerald-300 bg-clip-text text-transparent">someone to say yes.</span>
+                </h1>
+                <p className="text-base text-white/70 mb-5">
+                  India&apos;s community for people who want to camp, trek, eat, play, create &amp; explore — with others who actually show up.
+                </p>
+                {/* What you can do — 3 benefit rows */}
+                <div className="flex flex-col gap-3 mb-8">
+                  {[
+                    { icon: "🔍", bold: "Find activities near you", desc: "Camping, treks, food walks, sports, cycling, social meetups — filter by city, budget & age group." },
+                    { icon: "🤝", bold: "Meet people, not strangers", desc: "Join groups hosted by real verified people. See who's coming before you say yes." },
+                    { icon: "✍️", bold: "Share your experience", desc: "Post blogs, photos & videos. Build your explorer profile and inspire your next crew." },
+                  ].map(({ icon, bold, desc }) => (
+                    <div key={bold} className="flex items-start gap-3 bg-black/30 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-3">
+                      <span className="text-xl shrink-0 mt-0.5">{icon}</span>
+                      <p className="text-sm text-white/90 leading-snug">
+                        <span className="font-bold text-white">{bold} — </span>{desc}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex flex-wrap gap-4 mb-10">
+
+                <div className="flex flex-wrap gap-4">
                   <Link href="/trips" className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 py-4 rounded-full text-lg transition-all shadow-xl hover:scale-105">
                     Explore Activities <ArrowRight className="w-5 h-5" />
                   </Link>
                   <Link href="/trips/new" className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold px-8 py-4 rounded-full text-lg transition-all backdrop-blur-sm">
                     Host an Activity
                   </Link>
-                </div>
-                <div className="grid grid-cols-4 gap-6 max-w-sm">
-                  {[["🚀", "Just Launched"], ["Free", "To Join"], ["India", "Wide"], ["Open", "Beta"]].map(([v, l]) => (
-                    <div key={l}><p className="text-2xl font-extrabold text-white">{v}</p><p className="text-teal-300/80 text-xs mt-0.5">{l}</p></div>
-                  ))}
                 </div>
               </div>
             </div>
