@@ -40,7 +40,7 @@ const HERO_SLIDES = [
   },
   {
     id: "hero-4",
-    bg: U("photo-1612872087720-bb876e2e67d1"),
+    bg: U("photo-1743203528020-d5fdace3da25"),
     tag: "Sports & Games", label: "04",
     title: "Beach Sports & Weekend Games",
     subtitle: "Volleyball, cricket, cycling, frisbee — play with new people every weekend",
