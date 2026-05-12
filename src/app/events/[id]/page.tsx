@@ -22,7 +22,7 @@ const TYPE_PHOTOS: Record<string, string> = {
   "Trekking": "photo-1551632811-561732d1e306",
   "Travel": "photo-1476514525535-07fb3b4ae5f1",
   "Food Walk": "photo-1567337710282-00832b415979",
-  "Sports & Games": "photo-1547347298-4074fc3086f0",
+  "Sports & Games": "photo-1612872087720-bb876e2e67d1",
   "Social Meetup": "photo-1511632765486-a01980e01a18",
   "Content Creation": "photo-1492691527719-9d1e07e534b4",
   "Bike Ride": "photo-1558618666-fcd25c85cd64",
