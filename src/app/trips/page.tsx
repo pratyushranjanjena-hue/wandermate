@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -79,6 +79,14 @@ function getPhotoUrl(type: string, w = 600, h = 400) {
 }
 
 export default function TripsPage() {
+  return (
+    <Suspense>
+      <TripsContent />
+    </Suspense>
+  );
+}
+
+function TripsContent() {
   const { trips } = useData();
   const { user } = useAuth();
   const searchParams = useSearchParams();
