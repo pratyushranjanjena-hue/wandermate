@@ -139,7 +139,7 @@ export default function MatchPage() {
   const [minScore, setMinScore] = useState(0);
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
-  useEffect(() => { setAllUsers(getAllUsers()); }, [user]);
+  useEffect(() => { getAllUsers().then(setAllUsers); }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const matches = useMemo(() => {
     if (!user) return [];

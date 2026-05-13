@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { X, Heart, MessageCircle, MapPin, Eye, BookOpen, Image, Video } from "lucide-react";
+import { X, Heart, MessageCircle, MapPin, Eye, BookOpen, Image, Video, ExternalLink } from "lucide-react";
+import { parseVideoUrl } from "@/lib/videoUtils";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import { Post, Comment } from "@/types";
 import AuthModal from "./AuthModal";
 import { UserAvatar } from "./AvatarPicker";
-import { loadMedia } from "@/lib/mediaStorage";
 
 const typeIcon = { blog: <BookOpen className="w-3.5 h-3.5" />, photo: <Image className="w-3.5 h-3.5" />, video: <Video className="w-3.5 h-3.5" /> };
 const typeColor = { blog: "bg-blue-100 text-blue-600", photo: "bg-purple-100 text-purple-600", video: "bg-red-100 text-red-600" };
@@ -34,20 +34,8 @@ export default function PostDetailModal({ post: initialPost, onClose }: Props) {
   const { showToast } = useToast();
   const [commentText, setCommentText] = useState("");
   const [showAuth, setShowAuth] = useState(false);
-  const [videoSrc, setVideoSrc] = useState<string>("");
-
   // Always use the live post from context so likes/comments update in real-time
   const post = posts.find(p => p.id === initialPost.id) ?? initialPost;
-
-  // Resolve idb: prefixed video keys to object URLs
-  useEffect(() => {
-    if (post.type === "video" && post.mediaUrl?.startsWith("idb:")) {
-      const key = post.mediaUrl.slice(4);
-      loadMedia(key).then(url => { if (url) setVideoSrc(url); });
-    } else if (post.type === "video" && post.mediaUrl) {
-      setVideoSrc(post.mediaUrl);
-    }
-  }, [post.mediaUrl, post.type]);
 
   const liked = user ? post.likes.includes(user.id) : false;
 
@@ -85,13 +73,36 @@ export default function PostDetailModal({ post: initialPost, onClose }: Props) {
           {/* Left: Media */}
           <div className="md:w-1/2 bg-black flex items-center justify-center min-h-[280px] md:min-h-0 relative shrink-0">
             {hasMedia ? (
-              post.type === "video" ? (
-                videoSrc
-                  ? <video src={videoSrc} controls className="w-full h-full object-contain max-h-[60vh]" />
-                  : <div className="flex items-center justify-center w-full h-full min-h-[280px]">
-                      <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              post.type === "video" ? (() => {
+                const meta = parseVideoUrl(post.mediaUrl!);
+                if (meta.type === "youtube" && meta.embedUrl) {
+                  return (
+                    <iframe
+                      src={meta.embedUrl}
+                      title={post.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full aspect-video max-h-[60vh]"
+                    />
+                  );
+                }
+                // Instagram — can't embed, show a nice link card
+                return (
+                  <div className="w-full h-full min-h-[280px] bg-gradient-to-br from-purple-900 to-pink-900 flex flex-col items-center justify-center gap-5 p-8">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-2xl">
+                      <ExternalLink className="w-9 h-9 text-white" />
                     </div>
-              ) : (
+                    <div className="text-center">
+                      <p className="text-white font-bold text-lg mb-1">Instagram Reel</p>
+                      <p className="text-white/60 text-sm mb-4">Instagram doesn&apos;t allow embedding — open it directly</p>
+                      <a href={post.mediaUrl} target="_blank" rel="noreferrer"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-6 py-2.5 rounded-full text-sm hover:opacity-90 transition-opacity">
+                        <ExternalLink className="w-4 h-4" /> Open Reel
+                      </a>
+                    </div>
+                  </div>
+                );
+              })() : (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={post.mediaUrl} alt={post.title} className="w-full h-full object-contain max-h-[60vh]" />
               )

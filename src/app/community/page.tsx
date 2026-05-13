@@ -176,7 +176,12 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative">
+      {/* Blurred travel stories background */}
+      <div className="fixed inset-0 -z-10">
+        <img src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=1600&h=900&fit=crop&auto=format&q=80" alt="" className="w-full h-full object-cover" style={{ filter: "blur(5px)", transform: "scale(1.05)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(245,243,255,0.78)" }} />
+      </div>
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1a1046 100%)" }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />

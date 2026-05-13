@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MapPin, Calendar, BadgeCheck, Edit, Save, X, LogOut, Grid3X3, BookOpen, UserPlus, Camera, Trash2 } from "lucide-react";
+import { MapPin, Calendar, BadgeCheck, Edit, Save, X, LogOut, Grid3X3, BookOpen, UserPlus, Camera, Trash2, History, MailWarning } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
@@ -12,7 +12,7 @@ import CreatePostModal from "@/components/CreatePostModal";
 import AvatarPicker, { UserAvatar } from "@/components/AvatarPicker";
 import { Post } from "@/types";
 
-type TabType = "posts" | "trips" | "events";
+type TabType = "posts" | "trips" | "events" | "history";
 
 const typeColor = {
   blog: "bg-blue-500",
@@ -21,12 +21,22 @@ const typeColor = {
 };
 
 export default function ProfilePage() {
-  const { user, updateUser, logout, getUserById } = useAuth();
-  const { trips, events, posts, deletePost } = useData();
+  const { user, updateUser, logout, getUserById, emailVerified, resendVerificationEmail } = useAuth();
+  const [followerUsers, setFollowerUsers] = useState<import("@/types").User[]>([]);
+  const [followingUsers, setFollowingUsers] = useState<import("@/types").User[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all((user.followers || []).map(id => getUserById(id))).then(list => setFollowerUsers(list.filter(Boolean) as import("@/types").User[]));
+    Promise.all((user.following || []).map(id => getUserById(id))).then(list => setFollowingUsers(list.filter(Boolean) as import("@/types").User[]));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.followers?.length, user?.following?.length]);
+  const { trips, events, posts, deletePost, getUserHistory } = useData();
   const { showToast } = useToast();
 
   const [editing, setEditing] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [form, setForm] = useState({ name: "", city: "", bio: "", avatar: "", website: "" });
   const [activeTab, setActiveTab] = useState<TabType>("posts");
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -68,9 +78,31 @@ export default function ProfilePage() {
     showToast("Profile updated!");
   };
 
+  const handleResend = async () => {
+    setResendLoading(true);
+    const res = await resendVerificationEmail();
+    setResendLoading(false);
+    if (res.success) showToast("Verification email sent! Check your inbox.");
+    else showToast(res.error || "Failed to send.", "error");
+  };
+
   return (
     <>
       <div className="max-w-3xl mx-auto px-4 py-8">
+        {/* Email verification banner */}
+        {!emailVerified && (
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6">
+            <MailWarning className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-800">Verify your email address</p>
+              <p className="text-xs text-amber-700 mt-0.5">We sent a verification link to <span className="font-medium">{user.email}</span>. Check your inbox (and spam folder).</p>
+            </div>
+            <button onClick={handleResend} disabled={resendLoading}
+              className="shrink-0 text-xs font-semibold text-amber-700 hover:text-amber-900 underline disabled:opacity-50">
+              {resendLoading ? "Sending…" : "Resend"}
+            </button>
+          </div>
+        )}
         {/* Instagram-style Header */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 mb-8">
           {/* Avatar */}
@@ -203,6 +235,10 @@ export default function ProfilePage() {
             className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-wider transition-colors border-t-2 -mt-px ${activeTab === "events" ? "border-gray-900 text-gray-900" : "border-transparent text-gray-400 hover:text-gray-600"}`}>
             <Calendar className="w-4 h-4" /> Events
           </button>
+          <button onClick={() => setActiveTab("history")}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-wider transition-colors border-t-2 -mt-px ${activeTab === "history" ? "border-gray-900 text-gray-900" : "border-transparent text-gray-400 hover:text-gray-600"}`}>
+            <History className="w-4 h-4" /> History
+          </button>
         </div>
 
         {/* Posts Grid */}
@@ -314,6 +350,44 @@ export default function ProfilePage() {
             ))}
           </div>
         )}
+
+        {/* History tab */}
+        {activeTab === "history" && (() => {
+          const items = user ? getUserHistory(user.id) : [];
+          return items.length === 0 ? (
+            <div className="text-center py-16 text-gray-400 border-t border-gray-100">
+              <p className="text-5xl mb-3">🗂️</p>
+              <p className="font-medium text-gray-500">No history yet</p>
+              <p className="text-sm text-gray-400 mt-1">Past trips and events will appear here after they end</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50 border-t border-gray-100">
+              {items.map(item => (
+                <div key={item.id} className="flex items-center gap-4 py-4 px-1">
+                  <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center text-2xl">
+                    {item.photoUrl
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={item.photoUrl} alt={item.title} className="w-14 h-14 object-cover" />
+                      : item.image}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm truncate">{item.title}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{item.location} · {item.date}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${item.entityType === "trip" ? "bg-teal-100 text-teal-700" : "bg-purple-100 text-purple-700"}`}>
+                        {item.entityType === "trip" ? "🗺️ Trip" : "📅 Event"}
+                      </span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${item.role === "host" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
+                        {item.role === "host" ? "👑 Hosted" : "✅ Attended"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-300 shrink-0">{new Date(item.archivedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Post Detail */}
@@ -331,12 +405,10 @@ export default function ProfilePage() {
               <button onClick={() => setShowFollowers(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
             </div>
             <div className="p-4 space-y-3">
-              {followers.length === 0 ? (
+              {followerUsers.length === 0 ? (
                 <p className="text-gray-400 text-sm text-center py-4">No followers yet</p>
-              ) : followers.map(fid => {
-                const fu = getUserById(fid);
-                return fu ? (
-                  <Link key={fid} href={`/profile/${fid}`} onClick={() => setShowFollowers(false)}
+              ) : followerUsers.map(fu => (
+                  <Link key={fu.id} href={`/profile/${fu.id}`} onClick={() => setShowFollowers(false)}
                     className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
                     <span className="text-3xl">{fu.avatar}</span>
                     <div>
@@ -344,8 +416,7 @@ export default function ProfilePage() {
                       <p className="text-xs text-gray-400">{fu.city}</p>
                     </div>
                   </Link>
-                ) : null;
-              })}
+              ))}
             </div>
           </div>
         </div>
@@ -360,12 +431,10 @@ export default function ProfilePage() {
               <button onClick={() => setShowFollowing(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
             </div>
             <div className="p-4 space-y-3">
-              {following.length === 0 ? (
+              {followingUsers.length === 0 ? (
                 <p className="text-gray-400 text-sm text-center py-4">Not following anyone yet</p>
-              ) : following.map(fid => {
-                const fu = getUserById(fid);
-                return fu ? (
-                  <Link key={fid} href={`/profile/${fid}`} onClick={() => setShowFollowing(false)}
+              ) : followingUsers.map(fu => (
+                  <Link key={fu.id} href={`/profile/${fu.id}`} onClick={() => setShowFollowing(false)}
                     className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
                     <span className="text-3xl">{fu.avatar}</span>
                     <div>
@@ -373,8 +442,7 @@ export default function ProfilePage() {
                       <p className="text-xs text-gray-400">{fu.city}</p>
                     </div>
                   </Link>
-                ) : null;
-              })}
+              ))}
             </div>
           </div>
         </div>

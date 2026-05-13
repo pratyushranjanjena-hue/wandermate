@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Camera, Link as LinkIcon, Smile, Check, Loader2 } from "lucide-react";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 const EMOJIS = ["🧕", "👨", "👩", "🧔", "👱‍♀️", "👨‍🦱", "👩‍🦰", "🧑", "👲", "👳", "🧑‍💼", "👩‍💼", "🧑‍🎤", "👩‍🎤", "🧑‍🌾", "👩‍🌾"];
 
@@ -75,16 +76,18 @@ export default function AvatarPicker({ current, onChange }: Props) {
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // No size limit needed — we compress everything to ~100KB
     setCompressing(true);
     try {
-      const compressed = await compressImage(file);
-      applyPreview(compressed);
+      const dataUrl = await compressImage(file);
+      // Show local preview immediately
+      setPreview(dataUrl);
+      // Upload to Cloudinary and update with permanent URL
+      const url = await uploadToCloudinary(file, "maybe/avatars");
+      applyPreview(url);
     } catch {
       alert("Could not process this image. Please try a different file.");
     } finally {
       setCompressing(false);
-      // reset input so same file can be re-selected
       e.target.value = "";
     }
   };

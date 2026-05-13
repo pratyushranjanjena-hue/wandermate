@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import Link from "next/link";
 import { MapPin, Grid3X3, BookOpen, UserPlus, UserCheck, ArrowLeft, Zap } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -63,8 +63,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
   const [showAuth, setShowAuth] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [profileUser, setProfileUser] = useState<import("@/types").User | null>(null);
+  const [followerUsers, setFollowerUsers] = useState<import("@/types").User[]>([]);
+  const [followingUsers, setFollowingUsers] = useState<import("@/types").User[]>([]);
 
-  const profileUser = getUserById(id);
+  useEffect(() => {
+    getUserById(id).then(setProfileUser);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  useEffect(() => {
+    if (!profileUser) return;
+    Promise.all((profileUser.followers || []).map(fid => getUserById(fid))).then(list => setFollowerUsers(list.filter(Boolean) as import("@/types").User[]));
+    Promise.all((profileUser.following || []).map(fid => getUserById(fid))).then(list => setFollowingUsers(list.filter(Boolean) as import("@/types").User[]));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileUser?.followers?.length, profileUser?.following?.length]);
 
   if (!profileUser) {
     return (
@@ -273,12 +286,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
               <button onClick={() => setShowFollowers(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
             </div>
             <div className="p-4 space-y-3">
-              {followers.length === 0 ? (
+              {followerUsers.length === 0 ? (
                 <p className="text-gray-400 text-sm text-center py-4">No followers yet</p>
-              ) : followers.map(fid => {
-                const fu = getUserById(fid);
-                return fu ? (
-                  <Link key={fid} href={`/profile/${fid}`} onClick={() => setShowFollowers(false)}
+              ) : followerUsers.map(fu => (
+                  <Link key={fu.id} href={`/profile/${fu.id}`} onClick={() => setShowFollowers(false)}
                     className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
                     <span className="text-3xl">{fu.avatar}</span>
                     <div>
@@ -286,8 +297,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                       <p className="text-xs text-gray-400">{fu.city}</p>
                     </div>
                   </Link>
-                ) : null;
-              })}
+              ))}
             </div>
           </div>
         </div>
@@ -302,12 +312,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
               <button onClick={() => setShowFollowing(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
             </div>
             <div className="p-4 space-y-3">
-              {following.length === 0 ? (
+              {followingUsers.length === 0 ? (
                 <p className="text-gray-400 text-sm text-center py-4">Not following anyone yet</p>
-              ) : following.map(fid => {
-                const fu = getUserById(fid);
-                return fu ? (
-                  <Link key={fid} href={`/profile/${fid}`} onClick={() => setShowFollowing(false)}
+              ) : followingUsers.map(fu => (
+                  <Link key={fu.id} href={`/profile/${fu.id}`} onClick={() => setShowFollowing(false)}
                     className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
                     <span className="text-3xl">{fu.avatar}</span>
                     <div>
@@ -315,8 +323,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                       <p className="text-xs text-gray-400">{fu.city}</p>
                     </div>
                   </Link>
-                ) : null;
-              })}
+              ))}
             </div>
           </div>
         </div>

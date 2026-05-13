@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { MapPin, Calendar, Users, Star, Search, SlidersHorizontal, X, ArrowRight, Flame, TrendingUp } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
@@ -80,6 +81,12 @@ function getPhotoUrl(type: string, w = 600, h = 400) {
 export default function TripsPage() {
   const { trips } = useData();
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const dest = searchParams.get("destination");
+    if (dest) setQuery(dest);
+  }, [searchParams]);
 
   const [query, setQuery] = useState("");
   const [activeType, setActiveType] = useState("All");
@@ -123,7 +130,12 @@ export default function TripsPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative">
+      {/* Blurred activity background */}
+      <div className="fixed inset-0 -z-10">
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&h=900&fit=crop&auto=format&q=80" alt="" className="w-full h-full object-cover" style={{ filter: "blur(5px)", transform: "scale(1.05)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(240,253,250,0.75)" }} />
+      </div>
       {/* ── Hero banner ── */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0f172a 0%, #0d3d38 100%)" }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />

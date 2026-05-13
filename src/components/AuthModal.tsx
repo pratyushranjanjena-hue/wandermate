@@ -14,18 +14,35 @@ interface Props {
 
 export default function AuthModal({ onClose, defaultTab = "login", onSignupSuccess }: Props) {
   const [tab, setTab] = useState<"login" | "signup">(defaultTab);
+  const [view, setView] = useState<"form" | "reset">("form");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login, signup } = useAuth();
+  const { login, signup, resetPassword } = useAuth();
   const { showToast } = useToast();
 
   const [form, setForm] = useState({
     name: "", email: "", password: "", city: "",
     gender: "", dob: "", phone: "",
   });
+  const [resetEmail, setResetEmail] = useState("");
   const [error, setError] = useState("");
 
   const set = (k: string, v: string) => { setForm(f => ({ ...f, [k]: v })); setError(""); };
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    const res = await resetPassword(resetEmail);
+    setLoading(false);
+    if (res.success) {
+      showToast("Password reset email sent! Check your inbox.");
+      setView("form");
+      setResetEmail("");
+    } else {
+      setError(res.error || "Failed to send reset email.");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +82,30 @@ export default function AuthModal({ onClose, defaultTab = "login", onSignupSucce
           <MaybeLogo size={38} nameSize="lg" />
         </div>
 
+        {view === "reset" ? (
+          <form onSubmit={handleReset} className="space-y-4">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 mb-1">Reset your password</h2>
+              <p className="text-sm text-gray-500">Enter the email address linked to your account and we'll send you a reset link.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email *</label>
+              <input required type="email" placeholder="you@example.com" value={resetEmail}
+                onChange={e => { setResetEmail(e.target.value); setError(""); }}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+            </div>
+            {error && <p className="text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+            <button type="submit" disabled={loading}
+              className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors">
+              {loading ? "Sending…" : "Send Reset Link"}
+            </button>
+            <button type="button" onClick={() => { setView("form"); setError(""); }}
+              className="w-full text-sm text-gray-500 hover:text-gray-700 underline">
+              Back to Sign In
+            </button>
+          </form>
+        ) : (
+        <>
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6">
           {(["login", "signup"] as const).map(t => (
             <button key={t} onClick={() => { setTab(t); setError(""); }}
@@ -145,6 +186,12 @@ export default function AuthModal({ onClose, defaultTab = "login", onSignupSucce
                 {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+            {tab === "login" && (
+              <button type="button" onClick={() => { setView("reset"); setResetEmail(form.email); setError(""); }}
+                className="text-xs text-teal-600 hover:underline mt-1.5 text-right w-full block">
+                Forgot password?
+              </button>
+            )}
           </div>
 
           {error && <p className="text-red-500 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
@@ -168,6 +215,8 @@ export default function AuthModal({ onClose, defaultTab = "login", onSignupSucce
             {tab === "login" ? "Sign Up" : "Sign In"}
           </button>
         </p>
+        </>
+        )}
       </div>
     </div>
   );

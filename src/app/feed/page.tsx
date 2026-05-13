@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   Heart, MessageCircle, Send, MapPin, Eye, Compass,
   UserPlus, Trash2, Camera, BookOpen, Video, Zap,
-  TrendingUp, Flame, Users
+  TrendingUp, Flame, Users, ExternalLink
 } from "lucide-react";
+import { parseVideoUrl } from "@/lib/videoUtils";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
@@ -120,16 +121,42 @@ function FeedCard({ post, onOpenDetail }: { post: Post; onOpenDetail: (p: Post) 
         </div>
 
         {/* Media */}
-        <button className="w-full block relative" onClick={() => onOpenDetail(post)}>
+        <button className="w-full block relative" onClick={() => {
+          if (post.type === "video" && post.mediaUrl) {
+            const meta = parseVideoUrl(post.mediaUrl);
+            if (meta.type === "instagram") { window.open(post.mediaUrl, "_blank"); return; }
+          }
+          onOpenDetail(post);
+        }}>
           {post.mediaUrl ? (
-            post.type === "video" ? (
-              <div className="w-full aspect-square bg-gray-900 flex items-center justify-center relative overflow-hidden">
-                <div className="w-16 h-16 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center backdrop-blur-sm z-10">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7 ml-1"><path d="M8 5v14l11-7z"/></svg>
+            post.type === "video" ? (() => {
+              const meta = parseVideoUrl(post.mediaUrl!);
+              if (meta.type === "youtube" && meta.thumbnailUrl) {
+                return (
+                  <div className="w-full aspect-square bg-gray-900 flex items-center justify-center relative overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={meta.thumbnailUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                    <div className="relative z-10 w-16 h-16 rounded-full bg-red-600 flex items-center justify-center shadow-xl">
+                      <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7 ml-1"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded-full z-10 flex items-center gap-1">
+                      <svg viewBox="0 0 24 24" fill="red" className="w-3 h-3"><path d="M19.6 3H4.4A1.4 1.4 0 003 4.4v15.2A1.4 1.4 0 004.4 21h15.2a1.4 1.4 0 001.4-1.4V4.4A1.4 1.4 0 0019.6 3zM10 15V9l6 3-6 3z"/></svg>
+                      YouTube · Tap to play
+                    </div>
+                  </div>
+                );
+              }
+              // Instagram or unknown — show link card
+              return (
+                <div className="w-full aspect-square bg-gradient-to-br from-purple-900 to-pink-900 flex flex-col items-center justify-center gap-3 relative overflow-hidden">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl">
+                    <ExternalLink className="w-7 h-7 text-white" />
+                  </div>
+                  <p className="text-white font-semibold text-sm">Instagram Reel</p>
+                  <p className="text-white/60 text-xs">Tap to open</p>
                 </div>
-                <p className="absolute bottom-3 left-3 text-white/60 text-xs z-10">Tap to play</p>
-              </div>
-            ) : (
+              );
+            })() : (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={post.mediaUrl} alt={post.title} className="w-full object-cover max-h-[500px]" />
             )
@@ -213,11 +240,16 @@ function Sidebar() {
   const { user, getAllUsers, followUser } = useAuth();
   const { posts, trips } = useData();
   const { showToast } = useToast();
+  const [allUsers, setAllUsers] = useState<import("@/types").User[]>([]);
+
+  useEffect(() => {
+    getAllUsers().then(setAllUsers);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!user) return null;
 
-  const all = getAllUsers();
-  const suggestions = all.filter(u => u.id !== user.id && !(user.following || []).includes(u.id)).slice(0, 5);
+  const suggestions = allUsers.filter(u => u.id !== user.id && !(user.following || []).includes(u.id)).slice(0, 5);
   const topPosts = [...posts].sort((a, b) => b.likes.length - a.likes.length).slice(0, 3);
   const openTrips = trips.filter(t => t.joinedUsers.length < t.totalSpots).slice(0, 2);
 
@@ -392,7 +424,12 @@ export default function FeedPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen relative">
+        {/* Blurred chess background */}
+        <div className="fixed inset-0 -z-10">
+          <img src="https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=1600&h=900&fit=crop&auto=format&q=80" alt="" className="w-full h-full object-cover" style={{ filter: "blur(5px)", transform: "scale(1.05)" }} />
+          <div className="absolute inset-0" style={{ background: "rgba(245,240,255,0.75)" }} />
+        </div>
         {/* Top bar */}
         <div className="sticky top-16 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">

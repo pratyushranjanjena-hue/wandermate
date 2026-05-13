@@ -66,7 +66,7 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
   {
     keywords: ["contact", "reach", "email", "phone", "support", "help", "talk to", "human"],
-    reply: "You can reach us directly! 📬\n\n📧 Email: pratyushjena1994@gmail.com\n📞 Phone: +91 95459 97906\n\nWe're available Mon–Sat, 10am–7pm IST.\n\nFor quick questions, just keep chatting here — I'm happy to help! 😊",
+    reply: "You can reach us directly! 📬\n\n📧 Email: maybe.happy2help@gmail.com\n\nWe're available Mon–Sat, 10am–7pm IST.\n\nFor quick questions, just keep chatting here — I'm happy to help! 😊",
   },
   {
     keywords: ["event", "meetup", "upcoming", "when"],
@@ -98,7 +98,7 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
 ];
 
-const FALLBACK = "Hmm, I'm not sure about that one! 🤔\n\nYou can reach us directly:\n📧 pratyushjena1994@gmail.com\n📞 +91 95459 97906\n\nOr try asking me about:\n• Activities & events\n• How to join or host\n• Safety & matching\n• Pricing & features";
+const FALLBACK = "Hmm, I'm not sure about that one! 🤔\n\nYou can reach us directly:\n📧 maybe.happy2help@gmail.com\n\nOr try asking me about:\n• Activities & events\n• How to join or host\n• Safety & matching\n• Pricing & features";
 
 const QUICK_QUESTIONS = [
   "Is mayBE free?",

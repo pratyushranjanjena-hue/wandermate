@@ -1,18 +1,34 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+} from "firebase/auth";
+import {
+  doc, setDoc, getDoc, updateDoc, collection, getDocs, runTransaction,
+} from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import { User } from "@/types";
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
+  emailVerified: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (name: string, email: string, password: string, city: string, gender?: string, dob?: string, phone?: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
+  resendVerificationEmail: () => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
-  followUser: (targetId: string) => void;
-  unfollowUser: (targetId: string) => void;
-  getUserById: (id: string) => User | null;
-  getAllUsers: () => User[];
+  updateUser: (updates: Partial<User>) => Promise<void>;
+  followUser: (targetId: string) => Promise<void>;
+  unfollowUser: (targetId: string) => Promise<void>;
+  getUserById: (id: string) => Promise<User | null>;
+  getAllUsers: () => Promise<User[]>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,143 +37,165 @@ const AVATARS = ["🧕", "👨", "👩", "🧔", "👱‍♀️", "👨‍🦱",
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("wm_user");
-    if (stored) setUser(JSON.parse(stored));
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const snap = await getDoc(doc(db, "users", firebaseUser.uid));
+        if (snap.exists()) setUser(snap.data() as User);
+        setEmailVerified(firebaseUser.emailVerified);
+      } else {
+        setUser(null);
+        setEmailVerified(false);
+      }
+      setLoading(false);
+    });
+    return unsub;
   }, []);
 
-  const getUsers = (): Record<string, { password: string; user: User }> => {
-    const stored = localStorage.getItem("wm_users");
-    return stored ? JSON.parse(stored) : {};
-  };
-
-  const saveUsers = (users: Record<string, { password: string; user: User }>) => {
-    localStorage.setItem("wm_users", JSON.stringify(users));
-  };
-
-  const getAllUsers = (): User[] => {
-    const users = getUsers();
-    return Object.values(users).map(r => r.user);
-  };
-
-  const getUserById = (id: string): User | null => {
-    const users = getUsers();
-    const record = Object.values(users).find(r => r.user.id === id);
-    return record ? record.user : null;
-  };
-
   const login = async (email: string, password: string) => {
-    const users = getUsers();
-    const record = users[email.toLowerCase()];
-    if (!record) return { success: false, error: "No account found with this email." };
-    if (record.password !== password) return { success: false, error: "Incorrect password." };
-    setUser(record.user);
-    localStorage.setItem("wm_user", JSON.stringify(record.user));
-    return { success: true };
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const snap = await getDoc(doc(db, "users", cred.user.uid));
+      if (snap.exists()) setUser(snap.data() as User);
+      return { success: true };
+    } catch (e: any) {
+      const msg = e.code === "auth/user-not-found" || e.code === "auth/wrong-password" || e.code === "auth/invalid-credential"
+        ? "Incorrect email or password."
+        : "Login failed. Please try again.";
+      return { success: false, error: msg };
+    }
   };
 
   const signup = async (name: string, email: string, password: string, city: string, gender?: string, dob?: string, phone?: string) => {
-    const users = getUsers();
-    const key = email.toLowerCase();
-    if (users[key]) return { success: false, error: "An account with this email already exists." };
-    const newUser: User = {
-      id: `user_${Date.now()}`,
-      name,
-      email: key,
-      avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
-      city,
-      bio: "New to mayBE. Ready to explore! 🌍",
-      verified: false,
-      travelStyle: "Mid-range",
-      budget: "₹5,000–₹15,000",
-      tripsJoined: [],
-      tripsHosted: [],
-      eventsRegistered: [],
-      followers: [],
-      following: [],
-      onboardingDone: false,
-      preferences: {
-        accommodation: "", pace: "", wakeTime: "", tripStyle: "", budgetRange: "",
-        travelTypes: [], skillTags: [],
-        gender: (gender as any) || "", ageGroup: "", languages: [],
-        diet: "", cuisines: [], movieGenres: [], music: [], dealbreakers: [],
-        phone: phone || "", dob: dob || "",
-      },
-    };
-    users[key] = { password, user: newUser };
-    saveUsers(users);
-    setUser(newUser);
-    localStorage.setItem("wm_user", JSON.stringify(newUser));
-    return { success: true };
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser: User = {
+        id: cred.user.uid,
+        name,
+        email: email.toLowerCase(),
+        avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
+        city,
+        bio: "New to mayBE. Ready to explore! 🌍",
+        verified: false,
+        travelStyle: "Mid-range",
+        budget: "₹5,000–₹15,000",
+        tripsJoined: [],
+        tripsHosted: [],
+        eventsRegistered: [],
+        followers: [],
+        following: [],
+        onboardingDone: false,
+        preferences: {
+          accommodation: "", pace: "", wakeTime: "", tripStyle: "", budgetRange: "",
+          travelTypes: [], skillTags: [],
+          gender: (gender as any) || "", ageGroup: "", languages: [],
+          diet: "", cuisines: [], movieGenres: [], music: [], dealbreakers: [],
+          phone: phone || "", dob: dob || "",
+        },
+      };
+      await setDoc(doc(db, "users", cred.user.uid), newUser);
+      await sendEmailVerification(cred.user);
+      setUser(newUser);
+      setEmailVerified(false);
+      return { success: true };
+    } catch (e: any) {
+      const msg = e.code === "auth/email-already-in-use"
+        ? "An account with this email already exists."
+        : "Signup failed. Please try again.";
+      return { success: false, error: msg };
+    }
   };
 
-  const logout = () => {
+  const resendVerificationEmail = async () => {
+    try {
+      const firebaseUser = auth.currentUser;
+      if (!firebaseUser) return { success: false, error: "Not logged in." };
+      if (firebaseUser.emailVerified) return { success: false, error: "Email is already verified." };
+      await sendEmailVerification(firebaseUser);
+      return { success: true };
+    } catch {
+      return { success: false, error: "Could not send email. Please try again later." };
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      return { success: true };
+    } catch (e: any) {
+      const msg = e.code === "auth/user-not-found"
+        ? "No account found with this email."
+        : "Failed to send reset email. Please try again.";
+      return { success: false, error: msg };
+    }
+  };
+
+  const logout = async () => {
+    await signOut(auth);
     setUser(null);
-    localStorage.removeItem("wm_user");
   };
 
-  const updateUser = (updates: Partial<User>) => {
+  const updateUser = async (updates: Partial<User>) => {
     if (!user) return;
     const updated = { ...user, ...updates };
+    await updateDoc(doc(db, "users", user.id), updates as any);
     setUser(updated);
-    localStorage.setItem("wm_user", JSON.stringify(updated));
-    const users = getUsers();
-    if (users[user.email]) {
-      users[user.email].user = updated;
-      saveUsers(users);
-    }
   };
 
-  const followUser = (targetId: string) => {
+  const followUser = async (targetId: string) => {
     if (!user) return;
-    const users = getUsers();
+    await runTransaction(db, async (tx) => {
+      const myRef     = doc(db, "users", user.id);
+      const targetRef = doc(db, "users", targetId);
+      const mySnap     = await tx.get(myRef);
+      const targetSnap = await tx.get(targetRef);
+      if (!mySnap.exists() || !targetSnap.exists()) return;
 
-    // Update current user's following list
-    const currentFollowing = user.following || [];
-    const updatedFollowing = currentFollowing.includes(targetId)
-      ? currentFollowing
-      : [...currentFollowing, targetId];
-    const updatedCurrentUser = { ...user, following: updatedFollowing };
-    setUser(updatedCurrentUser);
-    localStorage.setItem("wm_user", JSON.stringify(updatedCurrentUser));
-    if (users[user.email]) users[user.email].user = updatedCurrentUser;
+      const myData     = mySnap.data() as User;
+      const targetData = targetSnap.data() as User;
 
-    // Update target user's followers list
-    const targetEntry = Object.values(users).find(r => r.user.id === targetId);
-    if (targetEntry) {
-      const existingFollowers = targetEntry.user.followers || [];
-      const updatedFollowers = existingFollowers.includes(user.id)
-        ? existingFollowers
-        : [...existingFollowers, user.id];
-      targetEntry.user = { ...targetEntry.user, followers: updatedFollowers };
-    }
+      const newFollowing  = myData.following.includes(targetId) ? myData.following : [...myData.following, targetId];
+      const newFollowers  = targetData.followers.includes(user.id) ? targetData.followers : [...targetData.followers, user.id];
 
-    saveUsers(users);
+      tx.update(myRef,     { following: newFollowing });
+      tx.update(targetRef, { followers: newFollowers });
+    });
+    setUser(u => u ? { ...u, following: u.following.includes(targetId) ? u.following : [...u.following, targetId] } : u);
   };
 
-  const unfollowUser = (targetId: string) => {
+  const unfollowUser = async (targetId: string) => {
     if (!user) return;
-    const users = getUsers();
+    await runTransaction(db, async (tx) => {
+      const myRef     = doc(db, "users", user.id);
+      const targetRef = doc(db, "users", targetId);
+      const mySnap     = await tx.get(myRef);
+      const targetSnap = await tx.get(targetRef);
+      if (!mySnap.exists() || !targetSnap.exists()) return;
 
-    // Update current user's following list
-    const updatedFollowing = (user.following || []).filter(id => id !== targetId);
-    const updatedCurrentUser = { ...user, following: updatedFollowing };
-    setUser(updatedCurrentUser);
-    localStorage.setItem("wm_user", JSON.stringify(updatedCurrentUser));
-    if (users[user.email]) users[user.email].user = updatedCurrentUser;
+      const myData     = mySnap.data() as User;
+      const targetData = targetSnap.data() as User;
 
-    // Update target user's followers list
-    const targetEntry = Object.values(users).find(r => r.user.id === targetId);
-    if (targetEntry) {
-      targetEntry.user = { ...targetEntry.user, followers: (targetEntry.user.followers || []).filter(id => id !== user.id) };
-    }
+      tx.update(myRef,     { following: myData.following.filter(id => id !== targetId) });
+      tx.update(targetRef, { followers: targetData.followers.filter(id => id !== user.id) });
+    });
+    setUser(u => u ? { ...u, following: u.following.filter(id => id !== targetId) } : u);
+  };
 
-    saveUsers(users);
+  const getUserById = async (id: string): Promise<User | null> => {
+    const snap = await getDoc(doc(db, "users", id));
+    return snap.exists() ? (snap.data() as User) : null;
+  };
+
+  const getAllUsers = async (): Promise<User[]> => {
+    const snap = await getDocs(collection(db, "users"));
+    return snap.docs.map(d => d.data() as User);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUser, followUser, unfollowUser, getUserById, getAllUsers }}>
+    <AuthContext.Provider value={{ user, loading, emailVerified, login, signup, resetPassword, resendVerificationEmail, logout, updateUser, followUser, unfollowUser, getUserById, getAllUsers }}>
       {children}
     </AuthContext.Provider>
   );

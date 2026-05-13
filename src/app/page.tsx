@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ArrowRight, MapPin, ChevronDown, ChevronUp, Users, Shield, Camera, Bike, BookOpen, Mail, Phone, MessageCircle, Send, CheckCircle, LogIn } from "lucide-react";
+import { ArrowRight, MapPin, ChevronDown, ChevronUp, Users, Shield, Camera, Bike, BookOpen, Mail, MessageCircle, Send, CheckCircle, LogIn } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 
@@ -86,7 +86,7 @@ function ContactForm() {
     if (!user || !message.trim()) return;
     const subject = encodeURIComponent(`mayBE enquiry from ${user.name}`);
     const body = encodeURIComponent(`Name: ${user.name}\nEmail: ${user.email}\n\n${message}`);
-    window.open(`mailto:pratyushjena1994@gmail.com?subject=${subject}&body=${body}`, "_blank");
+    window.open(`mailto:maybe.happy2help@gmail.com?subject=${subject}&body=${body}`, "_blank");
     setSent(true);
     setTimeout(() => { setSent(false); setMessage(""); }, 4000);
   };
@@ -385,25 +385,14 @@ export default function Home() {
 
                 {/* Contact cards */}
                 <div className="space-y-4 mb-8">
-                  <a href="mailto:pratyushjena1994@gmail.com"
+                  <a href="mailto:maybe.happy2help@gmail.com"
                     className="flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-teal-500/40 rounded-2xl px-5 py-4 transition-all group">
                     <div className="w-11 h-11 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center shrink-0">
                       <Mail className="w-5 h-5 text-teal-400" />
                     </div>
                     <div>
                       <p className="text-white/50 text-xs uppercase tracking-widest mb-0.5">Email us</p>
-                      <p className="text-white font-semibold group-hover:text-teal-400 transition-colors">pratyushjena1994@gmail.com</p>
-                    </div>
-                  </a>
-
-                  <a href="tel:+919545997906"
-                    className="flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-teal-500/40 rounded-2xl px-5 py-4 transition-all group">
-                    <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-white/50 text-xs uppercase tracking-widest mb-0.5">Call us (India)</p>
-                      <p className="text-white font-semibold group-hover:text-emerald-400 transition-colors">+91 95459 97906</p>
+                      <p className="text-white font-semibold group-hover:text-teal-400 transition-colors">maybe.happy2help@gmail.com</p>
                     </div>
                   </a>
 

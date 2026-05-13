@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, BookOpen, ImageIcon, Video, Upload, Loader2, Play, Film } from "lucide-react";
+import { X, BookOpen, ImageIcon, Video, Upload, Loader2, Link2, ExternalLink } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import { Post } from "@/types";
-import { compressPhoto, saveMedia } from "@/lib/mediaStorage";
+import { compressPhoto } from "@/lib/mediaStorage";
+import { parseVideoUrl, isValidVideoUrl } from "@/lib/videoUtils";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 const EMOJI_COVERS = ["🏔️", "🌿", "❄️", "🏖️", "🏛️", "🌄", "🌅", "🏍️", "🎒", "📸", "🌊", "🏜️", "🌸", "⛺", "🗺️"];
 
@@ -32,19 +34,17 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
   const [tags, setTags] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // media state
-  const [mediaPreview, setMediaPreview] = useState<string>("");   // object URL or data URL for preview
-  const [mediaKey, setMediaKey]     = useState<string>("");       // key stored in IndexedDB
-  const [mediaDataUrl, setMediaDataUrl] = useState<string>("");   // compressed data URL (photos only, stored in post.mediaUrl)
+  const [mediaPreview, setMediaPreview] = useState<string>("");
+  const [mediaFile, setMediaFile] = useState<Blob | null>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [mediaFileName, setMediaFileName] = useState("");
   const [mediaFileSizeMB, setMediaFileSizeMB] = useState(0);
 
-  const photoRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLInputElement>(null);
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [videoUrlError, setVideoUrlError] = useState<string>("");
 
-  // ── Photo upload ──────────────────────────────────────────────────────────
+  const photoRef = useRef<HTMLInputElement>(null);
+
   const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -53,10 +53,7 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
     setMediaFileSizeMB(+(file.size / 1024 / 1024).toFixed(1));
     try {
       const { dataUrl, blob } = await compressPhoto(file);
-      const key = `post_photo_${Date.now()}`;
-      await saveMedia(key, blob);
-      setMediaKey(key);
-      setMediaDataUrl(dataUrl);
+      setMediaFile(blob);
       setMediaPreview(dataUrl);
       setUploadState("done");
     } catch {
@@ -66,92 +63,68 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
     e.target.value = "";
   };
 
-  // ── Video upload ──────────────────────────────────────────────────────────
-  const handleVideo = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const sizeMB = file.size / 1024 / 1024;
-    if (sizeMB > 200) { showToast("Video must be under 200 MB", "error"); e.target.value = ""; return; }
-    setUploadState("processing");
-    setMediaFileName(file.name);
-    setMediaFileSizeMB(+sizeMB.toFixed(1));
-    setUploadProgress(0);
-
-    try {
-      // Fake progress while storing (IndexedDB write is fast but we show feedback)
-      const interval = setInterval(() => setUploadProgress(p => Math.min(p + 12, 90)), 120);
-      const key = `post_video_${Date.now()}`;
-      await saveMedia(key, file);
-      clearInterval(interval);
-      setUploadProgress(100);
-      // Preview via object URL
-      const objUrl = URL.createObjectURL(file);
-      setMediaKey(key);
-      setMediaPreview(objUrl);
-      setMediaDataUrl("");        // videos not stored as data URL
-      setUploadState("done");
-    } catch {
-      setUploadState("error");
-      showToast("Could not save video. Try a smaller file.", "error");
-    }
-    e.target.value = "";
+  const handleVideoUrlChange = (url: string) => {
+    setVideoUrl(url);
+    if (!url.trim()) { setVideoUrlError(""); return; }
+    setVideoUrlError(isValidVideoUrl(url) ? "" : "Please paste a valid YouTube or Instagram Reel link.");
   };
 
   const clearMedia = () => {
-    setMediaPreview(""); setMediaKey(""); setMediaDataUrl("");
-    setUploadState("idle"); setUploadProgress(0); setMediaFileName("");
+    setMediaPreview(""); setMediaFile(null);
+    setUploadState("idle"); setMediaFileName("");
   };
 
-  // ── Submit ────────────────────────────────────────────────────────────────
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setSubmitting(true);
 
-    const post: Post = {
-      id: `post_${Date.now()}`,
-      type,
-      authorId: user.id,
-      author: user.name,
-      avatar: user.avatar,
-      location: location.trim(),
-      title: title.trim(),
-      excerpt: excerpt.trim(),
-      content: content.trim(),
-      image: emojiCover,
-      // For photos store compressed data URL directly (fits in localStorage ~150KB)
-      // For videos store the IndexedDB key prefixed with "idb:" so PostDetailModal can retrieve it
-      mediaUrl: type === "video" && mediaKey
-        ? `idb:${mediaKey}`
-        : mediaDataUrl
-          ? mediaDataUrl
-          : undefined,
-      likes: [],
-      comments: [],
-      views: 0,
-      readTime: type === "blog"
-        ? `${Math.max(1, Math.floor(content.split(" ").length / 200))} min read`
-        : type === "video" ? "Video" : "Photo",
-      tags: tags.split(",").map(t => t.trim()).filter(Boolean),
-      createdAt: new Date().toISOString().split("T")[0],
-    };
+    try {
+      let mediaUrl: string | undefined;
 
-    addPost(post);
-    showToast("Your story has been posted! 🎉");
-    onClose();
+      if (type !== "video" && mediaFile) {
+        mediaUrl = await uploadToCloudinary(mediaFile, "maybe/posts");
+      } else if (type === "video" && videoUrl.trim()) {
+        mediaUrl = videoUrl.trim();
+      }
+
+      const post: Post = {
+        id: `post_${Date.now()}`,
+        type,
+        authorId: user.id,
+        author: user.name,
+        avatar: user.avatar,
+        location: location.trim(),
+        title: title.trim(),
+        excerpt: excerpt.trim(),
+        content: content.trim(),
+        image: emojiCover,
+        mediaUrl,
+        likes: [],
+        comments: [],
+        views: 0,
+        readTime: type === "blog"
+          ? `${Math.max(1, Math.floor(content.split(" ").length / 200))} min read`
+          : type === "video" ? "Video" : "Photo",
+        tags: tags.split(",").map(t => t.trim()).filter(Boolean),
+        createdAt: new Date().toISOString().split("T")[0],
+      };
+
+      await addPost(post);
+      showToast("Your story has been posted! 🎉");
+      onClose();
+    } catch {
+      showToast("Failed to publish post. Please try again.", "error");
+      setSubmitting(false);
+    }
   };
 
-  // ── Media upload zone ─────────────────────────────────────────────────────
-  const UploadZone = () => {
+  const PhotoUploadZone = () => {
     if (uploadState === "done" && mediaPreview) {
       return (
         <div className="relative rounded-2xl overflow-hidden bg-black">
-          {type === "video" ? (
-            <video src={mediaPreview} controls className="w-full max-h-56 object-contain" />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={mediaPreview} alt="preview" className="w-full max-h-56 object-cover" />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={mediaPreview} alt="preview" className="w-full max-h-56 object-cover" />
           <button type="button" onClick={clearMedia}
             className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-colors">
             <X className="w-3.5 h-3.5" />
@@ -162,33 +135,57 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
         </div>
       );
     }
-
     if (uploadState === "processing") {
       return (
         <div className="border-2 border-dashed border-teal-300 rounded-2xl py-8 flex flex-col items-center gap-3 text-teal-600">
           <Loader2 className="w-8 h-8 animate-spin" />
-          <p className="text-sm font-medium">
-            {type === "photo" ? "Compressing photo…" : `Saving video… ${uploadProgress}%`}
-          </p>
-          {type === "video" && (
-            <div className="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-teal-500 rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
-            </div>
-          )}
+          <p className="text-sm font-medium">Compressing photo…</p>
         </div>
       );
     }
-
     return (
-      <button type="button"
-        onClick={() => type === "video" ? videoRef.current?.click() : photoRef.current?.click()}
+      <button type="button" onClick={() => photoRef.current?.click()}
         className="w-full flex flex-col items-center gap-3 border-2 border-dashed border-gray-200 hover:border-teal-400 rounded-2xl py-8 text-gray-400 hover:text-teal-600 transition-colors">
-        {type === "video"
-          ? <><Film className="w-10 h-10" /><span className="text-sm font-semibold">Click to upload a video</span><span className="text-xs">MP4, MOV, WebM · Max 200 MB</span></>
-          : <><Upload className="w-10 h-10" /><span className="text-sm font-semibold">Click to upload a photo</span><span className="text-xs">JPG, PNG, WebP · Any size — auto compressed</span></>
-        }
+        <Upload className="w-10 h-10" />
+        <span className="text-sm font-semibold">Click to upload a photo</span>
+        <span className="text-xs">JPG, PNG, WebP · Any size — auto compressed</span>
       </button>
     );
+  };
+
+  const VideoUrlPreview = () => {
+    if (!videoUrl.trim()) return null;
+    const meta = parseVideoUrl(videoUrl);
+    if (meta.type === "youtube" && meta.thumbnailUrl) {
+      return (
+        <div className="relative rounded-2xl overflow-hidden bg-black mt-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={meta.thumbnailUrl} alt="YouTube thumbnail" className="w-full max-h-48 object-cover opacity-80" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center shadow-xl">
+              <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7 ml-1"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+          <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+            <Link2 className="w-3 h-3 text-red-400" /> YouTube · will embed in post
+          </div>
+        </div>
+      );
+    }
+    if (meta.type === "instagram") {
+      return (
+        <div className="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl px-4 py-3 mt-3">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shrink-0">
+            <ExternalLink className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Instagram Reel detected</p>
+            <p className="text-xs text-gray-500">A link card will be shown in your post</p>
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -199,7 +196,6 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-xl font-bold text-gray-900 mb-1">Share Your Story</h2>
         <p className="text-gray-500 text-sm mb-6">Inspire the community with your travel experience</p>
 
-        {/* Type selector */}
         <div className="flex gap-2 mb-6">
           {POST_TYPES.map(pt => (
             <button key={pt.value} type="button" onClick={() => { setType(pt.value); clearMedia(); }}
@@ -210,9 +206,7 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Hidden file inputs */}
           <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
-          <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={handleVideo} />
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Title *</label>
@@ -232,20 +226,40 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 resize-none" />
           </div>
 
-          {/* Media upload (photo / video types) */}
-          {(type === "photo" || type === "video") && (
+          {type === "photo" && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                {type === "photo" ? "Upload Photo *" : "Upload Video *"}
-              </label>
-              <UploadZone />
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Upload Photo *</label>
+              <PhotoUploadZone />
             </div>
           )}
 
-          {/* Blog content */}
+          {type === "video" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                YouTube or Instagram Reel Link *
+              </label>
+              <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-teal-300">
+                <Link2 className="w-4 h-4 text-red-500 shrink-0" />
+                <input
+                  value={videoUrl}
+                  onChange={e => handleVideoUrlChange(e.target.value)}
+                  placeholder="https://youtu.be/... or https://www.instagram.com/reel/..."
+                  className="flex-1 text-sm outline-none bg-transparent placeholder:text-gray-400"
+                />
+                {videoUrl && (
+                  <button type="button" onClick={() => { setVideoUrl(""); setVideoUrlError(""); }}>
+                    <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                  </button>
+                )}
+              </div>
+              {videoUrlError && <p className="text-xs text-red-500 mt-1">{videoUrlError}</p>}
+              <p className="text-xs text-gray-400 mt-1">Paste a YouTube or Instagram Reel link. No file upload needed!</p>
+              <VideoUrlPreview />
+            </div>
+          )}
+
           {type === "blog" && (
             <>
-              {/* Allow optional cover photo for blogs too */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Cover Photo <span className="text-gray-400 font-normal">(optional)</span></label>
                 {uploadState === "done" && mediaPreview ? (
@@ -276,7 +290,6 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
             </>
           )}
 
-          {/* Emoji cover fallback */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Emoji Cover <span className="text-gray-400 font-normal">(shown if no photo uploaded)</span>
@@ -297,9 +310,14 @@ export default function CreatePostModal({ onClose }: { onClose: () => void }) {
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
           </div>
 
-          <button type="submit" disabled={submitting || uploadState === "processing"}
+          <button type="submit"
+            disabled={
+              submitting ||
+              uploadState === "processing" ||
+              (type === "video" && (!videoUrl.trim() || !!videoUrlError))
+            }
             className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors mt-2">
-            {submitting ? "Posting…" : "Publish Story 🚀"}
+            {submitting ? "Uploading & Publishing…" : "Publish Story 🚀"}
           </button>
         </form>
       </div>

@@ -330,6 +330,9 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                     })}
                     <div ref={chatBottomRef} />
                   </div>
+                  <div className="flex items-center gap-1.5 mb-1.5 text-xs text-gray-400">
+                    <MessageCircle className="w-3 h-3" /> Text only · No photos or videos in group chat
+                  </div>
                   <form onSubmit={e => { e.preventDefault(); handleSendMessage(); }}
                     className="flex gap-2 items-center">
                     <input value={chatInput} onChange={e => setChatInput(e.target.value)}

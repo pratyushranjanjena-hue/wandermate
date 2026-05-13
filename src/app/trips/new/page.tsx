@@ -8,7 +8,8 @@ import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import { Trip } from "@/types";
 import AuthModal from "@/components/AuthModal";
-import { compressPhoto, saveMedia } from "@/lib/mediaStorage";
+import { compressPhoto } from "@/lib/mediaStorage";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 const TRIP_TYPES = ["Camping", "Trekking", "Travel", "Food Exploring", "Sports & Games", "Social Activity", "Content Creation", "Bike Ride", "Road Trip", "Backpacking", "Cycling", "Heritage Walk", "Yoga & Wellness", "Photography Tour", "Other"];
 
@@ -89,7 +90,7 @@ export default function NewTripPage() {
   });
 
   const [photoPreview, setPhotoPreview] = useState("");
-  const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
 
   const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,9 +99,7 @@ export default function NewTripPage() {
     setPhotoUploading(true);
     try {
       const { dataUrl, blob } = await compressPhoto(file);
-      const key = `trip_photo_${Date.now()}`;
-      await saveMedia(key, blob);
-      setPhotoDataUrl(dataUrl);
+      setPhotoBlob(blob);
       setPhotoPreview(dataUrl);
     } catch {
       showToast("Could not process photo. Try another file.", "error");
@@ -109,7 +108,7 @@ export default function NewTripPage() {
     e.target.value = "";
   };
 
-  const clearPhoto = () => { setPhotoPreview(""); setPhotoDataUrl(""); };
+  const clearPhoto = () => { setPhotoPreview(""); setPhotoBlob(null); };
 
   const toggleAge = (age: string) => setForm(f => ({
     ...f,
@@ -121,36 +120,46 @@ export default function NewTripPage() {
   const fromCities = useMemo(() => form.fromState ? (INDIA_STATES[form.fromState] ?? []) : [], [form.fromState]);
   const toCities   = useMemo(() => form.toState   ? (INDIA_STATES[form.toState]   ?? []) : [], [form.toState]);
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!user) { setShowAuth(true); return; }
-    const trip: Trip = {
-      id: `trip_${Date.now()}`,
-      title: form.title,
-      from: form.from || form.fromState || undefined,
-      fromState: form.fromState || undefined,
-      destination: form.destination || form.toState,
-      state: form.toState,
-      startDate: form.startDate,
-      endDate: form.endDate,
-      type: form.type,
-      image: "",
-      photoUrl: photoDataUrl || undefined,
-      hostId: user.id,
-      hostName: user.name,
-      rating: 0,
-      budget: `₹${form.budget}`,
-      difficulty: form.difficulty,
-      totalSpots: parseInt(form.totalSpots) || 8,
-      joinedUsers: [user.id],
-      description: form.description,
-      whatToBring: form.whatToBring,
-      genderPreference: form.genderPreference,
-      ageGroups: form.ageGroups.length > 0 ? form.ageGroups : undefined,
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-    addTrip(trip);
-    showToast("Activity published! People can now join 🎉");
-    router.push("/trips");
+    setPhotoUploading(true);
+    try {
+      let photoUrl: string | undefined;
+      if (photoBlob) {
+        photoUrl = await uploadToCloudinary(photoBlob, "maybe/trips");
+      }
+      const trip: Trip = {
+        id: `trip_${Date.now()}`,
+        title: form.title,
+        from: form.from || form.fromState || undefined,
+        fromState: form.fromState || undefined,
+        destination: form.destination || form.toState,
+        state: form.toState,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        type: form.type,
+        image: "",
+        photoUrl,
+        hostId: user.id,
+        hostName: user.name,
+        rating: 0,
+        budget: `₹${form.budget}`,
+        difficulty: form.difficulty,
+        totalSpots: parseInt(form.totalSpots) || 8,
+        joinedUsers: [user.id],
+        description: form.description,
+        whatToBring: form.whatToBring,
+        genderPreference: form.genderPreference,
+        ageGroups: form.ageGroups.length > 0 ? form.ageGroups : undefined,
+        createdAt: new Date().toISOString().split("T")[0],
+      };
+      await addTrip(trip);
+      showToast("Activity published! People can now join 🎉");
+      router.push("/trips");
+    } catch {
+      showToast("Failed to publish. Please try again.", "error");
+    }
+    setPhotoUploading(false);
   };
 
   return (

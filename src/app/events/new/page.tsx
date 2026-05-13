@@ -8,7 +8,8 @@ import { useData } from "@/context/DataContext";
 import { useToast } from "@/context/ToastContext";
 import { Event } from "@/types";
 import AuthModal from "@/components/AuthModal";
-import { compressPhoto, saveMedia } from "@/lib/mediaStorage";
+import { compressPhoto } from "@/lib/mediaStorage";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 const EVENT_TYPES = ["Camping", "Trekking", "Travel", "Food Walk", "Sports & Games", "Social Meetup", "Content Creation", "Bike Ride", "Cycling", "Yoga & Wellness", "Music & Culture", "Photography", "Backpacking", "Road Trip", "Heritage Walk", "Other"];
 
@@ -49,7 +50,7 @@ export default function NewEventPage() {
   });
 
   const [photoPreview, setPhotoPreview] = useState("");
-  const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [photoBlob, setPhotoBlob] = useState<Blob | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
 
   const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,9 +59,7 @@ export default function NewEventPage() {
     setPhotoUploading(true);
     try {
       const { dataUrl, blob } = await compressPhoto(file);
-      const key = `event_photo_${Date.now()}`;
-      await saveMedia(key, blob);
-      setPhotoDataUrl(dataUrl);
+      setPhotoBlob(blob);
       setPhotoPreview(dataUrl);
     } catch {
       showToast("Could not process photo. Try another file.", "error");
@@ -69,31 +68,41 @@ export default function NewEventPage() {
     e.target.value = "";
   };
 
-  const clearPhoto = () => { setPhotoPreview(""); setPhotoDataUrl(""); };
+  const clearPhoto = () => { setPhotoPreview(""); setPhotoBlob(null); };
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!user) { setShowAuth(true); return; }
-    const event: Event = {
-      id: `event_${Date.now()}`,
-      title: form.title,
-      host: user.name,
-      hostId: user.id,
-      date: form.date,
-      location: form.location,
-      maxAttendees: parseInt(form.maxAttendees) || 20,
-      attendees: [user.id],
-      type: form.type,
-      price: form.price ? `₹${form.price}` : "Free",
-      image: "",
-      photoUrl: photoDataUrl || undefined,
-      badge: null,
-      description: form.description,
-    };
-    addEvent(event);
-    showToast("Event published! People can now register 🎉");
-    router.push("/events");
+    setPhotoUploading(true);
+    try {
+      let photoUrl: string | undefined;
+      if (photoBlob) {
+        photoUrl = await uploadToCloudinary(photoBlob, "maybe/events");
+      }
+      const event: Event = {
+        id: `event_${Date.now()}`,
+        title: form.title,
+        host: user.name,
+        hostId: user.id,
+        date: form.date,
+        location: form.location,
+        maxAttendees: parseInt(form.maxAttendees) || 20,
+        attendees: [user.id],
+        type: form.type,
+        price: form.price ? `₹${form.price}` : "Free",
+        image: "",
+        photoUrl,
+        badge: null,
+        description: form.description,
+      };
+      await addEvent(event);
+      showToast("Event published! People can now register 🎉");
+      router.push("/events");
+    } catch {
+      showToast("Failed to publish. Please try again.", "error");
+    }
+    setPhotoUploading(false);
   };
 
   return (

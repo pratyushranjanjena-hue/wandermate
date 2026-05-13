@@ -152,3 +152,17 @@ export interface Toast {
   message: string;
   type: "success" | "error" | "info";
 }
+
+export interface HistoryItem {
+  id: string;
+  entityId: string;
+  entityType: "trip" | "event";
+  title: string;
+  location: string;
+  date: string;
+  endDate: string;
+  role: "host" | "member";
+  photoUrl?: string;
+  image: string;
+  archivedAt: string;
+}

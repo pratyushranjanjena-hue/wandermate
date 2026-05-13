@@ -63,7 +63,12 @@ export default function EventsPage() {
   const thisWeek = filtered.filter(e => e.badge === "Featured" || e.badge === "New").slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative">
+      {/* Blurred activity background */}
+      <div className="fixed inset-0 -z-10">
+        <img src="https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=1600&h=900&fit=crop&auto=format&q=80" alt="" className="w-full h-full object-cover" style={{ filter: "blur(5px)", transform: "scale(1.05)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(245,240,255,0.75)" }} />
+      </div>
       {/* Hero */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)" }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
