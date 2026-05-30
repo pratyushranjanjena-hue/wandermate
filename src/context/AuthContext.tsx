@@ -33,7 +33,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const AVATARS = ["🧕", "👨", "👩", "🧔", "👱‍♀️", "👨‍🦱", "👩‍🦰", "🧑"];
+const MALE_AVATARS   = ["👨", "🧔", "👨‍🦱", "👱‍♂️", "🧑"];
+const FEMALE_AVATARS = ["👩", "🧕", "👱‍♀️", "👩‍🦰", "👩‍🦱"];
+const OTHER_AVATARS  = ["🧑", "👤"];
+
+function pickAvatar(gender?: string): string {
+  if (gender === "male")   return MALE_AVATARS[Math.floor(Math.random() * MALE_AVATARS.length)];
+  if (gender === "female") return FEMALE_AVATARS[Math.floor(Math.random() * FEMALE_AVATARS.length)];
+  return OTHER_AVATARS[Math.floor(Math.random() * OTHER_AVATARS.length)];
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -76,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: cred.user.uid,
         name,
         email: email.toLowerCase(),
-        avatar: AVATARS[Math.floor(Math.random() * AVATARS.length)],
+        avatar: pickAvatar(gender),
         city,
         bio: "New to mayBE. Ready to explore! 🌍",
         verified: false,

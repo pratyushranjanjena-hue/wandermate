@@ -4,8 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { ArrowRight, MapPin, ChevronDown, ChevronUp, Users, Shield, Camera, Bike, BookOpen, Mail, MessageCircle, Send, CheckCircle, LogIn } from "lucide-react";
+import emailjs from "@emailjs/browser";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
+
+const EMAILJS_SERVICE_ID  = "service_jkypbea";
+const EMAILJS_TEMPLATE_ID = "template_7hav7wq";
+const EMAILJS_PUBLIC_KEY  = "CX9_FhWRjqFO_f09I";
 
 const U = (id: string, w = 1400, h = 900) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&auto=format&q=80`;
@@ -79,16 +84,34 @@ function ContactForm() {
   const { user } = useAuth();
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
   const [showAuth, setShowAuth] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !message.trim()) return;
-    const subject = encodeURIComponent(`mayBE enquiry from ${user.name}`);
-    const body = encodeURIComponent(`Name: ${user.name}\nEmail: ${user.email}\n\n${message}`);
-    window.open(`mailto:maybe.happy2help@gmail.com?subject=${subject}&body=${body}`, "_blank");
-    setSent(true);
-    setTimeout(() => { setSent(false); setMessage(""); }, 4000);
+    setSending(true);
+    setError("");
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name:  user.name,
+          from_email: user.email,
+          message:    message.trim(),
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      setSent(true);
+      setMessage("");
+      setTimeout(() => setSent(false), 5000);
+    } catch {
+      setError("Failed to send message. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -138,9 +161,10 @@ function ContactForm() {
               className="w-full bg-white/8 border border-white/15 text-white placeholder:text-white/30 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30 resize-none"
             />
           </div>
-          <button type="submit" disabled={!message.trim()}
+          {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+          <button type="submit" disabled={!message.trim() || sending}
             className="w-full flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg shadow-teal-500/30">
-            <Send className="w-4 h-4" /> Send Message
+            <Send className="w-4 h-4" /> {sending ? "Sending..." : "Send Message"}
           </button>
         </form>
       )}
