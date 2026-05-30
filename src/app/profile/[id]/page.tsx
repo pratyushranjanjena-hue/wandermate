@@ -66,9 +66,12 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
   const [profileUser, setProfileUser] = useState<import("@/types").User | null>(null);
   const [followerUsers, setFollowerUsers] = useState<import("@/types").User[]>([]);
   const [followingUsers, setFollowingUsers] = useState<import("@/types").User[]>([]);
+  const [followLoading, setFollowLoading] = useState(false);
+
+  const refreshProfile = () => getUserById(id).then(u => { if (u) setProfileUser(u); });
 
   useEffect(() => {
-    getUserById(id).then(setProfileUser);
+    refreshProfile();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -101,14 +104,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
   const followers = profileUser.followers || [];
   const following = profileUser.following || [];
 
-  const handleFollow = () => {
+  const handleFollow = async () => {
     if (!user) { setShowAuth(true); return; }
-    if (isFollowing) {
-      unfollowUser(id);
-      showToast(`Unfollowed ${profileUser.name}`);
-    } else {
-      followUser(id);
-      showToast(`Following ${profileUser.name}! 🎉`);
+    if (followLoading) return;
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        await unfollowUser(id);
+        showToast(`Unfollowed ${profileUser.name}`, "info");
+      } else {
+        await followUser(id);
+        showToast(`Following ${profileUser.name}! 🎉`);
+      }
+      await refreshProfile();
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -171,11 +181,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                   Edit Profile
                 </Link>
               ) : (
-                <button onClick={handleFollow}
-                  className={`inline-flex items-center gap-2 px-5 py-1.5 rounded-lg text-sm font-semibold transition-colors ${isFollowing
+                <button onClick={handleFollow} disabled={followLoading}
+                  className={`inline-flex items-center gap-2 px-5 py-1.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${isFollowing
                     ? "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-600 border border-gray-200"
                     : "bg-teal-600 text-white hover:bg-teal-700"}`}>
-                  {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
+                  {followLoading ? "..." : isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
                 </button>
               )}
             </div>
@@ -194,10 +204,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                 <p className="font-bold text-gray-900 text-lg">{following.length}</p>
                 <p className="text-sm text-gray-500">following</p>
               </button>
-              <div className="text-center">
-                <p className="font-bold text-gray-900 text-lg">{totalLikes}</p>
-                <p className="text-sm text-gray-500">likes</p>
-              </div>
             </div>
 
             <p className="font-semibold text-gray-900">{profileUser.name}</p>
@@ -291,7 +297,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
               ) : followerUsers.map(fu => (
                   <Link key={fu.id} href={`/profile/${fu.id}`} onClick={() => setShowFollowers(false)}
                     className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
-                    <span className="text-3xl">{fu.avatar}</span>
+                    <UserAvatar avatar={fu.avatar} size="sm" />
                     <div>
                       <p className="font-semibold text-sm text-gray-900">{fu.name}</p>
                       <p className="text-xs text-gray-400">{fu.city}</p>
