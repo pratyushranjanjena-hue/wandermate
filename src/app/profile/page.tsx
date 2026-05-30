@@ -178,10 +178,6 @@ export default function ProfilePage() {
                     <p className="font-bold text-gray-900 text-lg">{following.length}</p>
                     <p className="text-sm text-gray-500">following</p>
                   </button>
-                  <div className="text-center">
-                    <p className="font-bold text-gray-900 text-lg">{totalLikes}</p>
-                    <p className="text-sm text-gray-500">likes</p>
-                  </div>
                 </div>
 
                 <p className="text-sm text-gray-500 flex items-center justify-center sm:justify-start gap-1 mb-1">
