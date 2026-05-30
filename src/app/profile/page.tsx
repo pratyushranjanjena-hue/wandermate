@@ -37,6 +37,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [dismissedVerifyBanner, setDismissedVerifyBanner] = useState(false);
   const [form, setForm] = useState({ name: "", city: "", bio: "", avatar: "", website: "" });
   const [activeTab, setActiveTab] = useState<TabType>("posts");
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
@@ -90,7 +91,7 @@ export default function ProfilePage() {
     <>
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Email verification banner */}
-        {!emailVerified && (
+        {!emailVerified && !dismissedVerifyBanner && (
           <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6">
             <MailWarning className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
@@ -101,6 +102,8 @@ export default function ProfilePage() {
               className="shrink-0 text-xs font-semibold text-amber-700 hover:text-amber-900 underline disabled:opacity-50">
               {resendLoading ? "Sending…" : "Resend"}
             </button>
+            <button onClick={() => setDismissedVerifyBanner(true)}
+              className="shrink-0 text-amber-400 hover:text-amber-600 text-lg leading-none ml-1">×</button>
           </div>
         )}
         {/* Instagram-style Header */}
