@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import {
   collection, doc, setDoc, updateDoc, deleteDoc,
   onSnapshot, arrayUnion, arrayRemove, runTransaction, query, orderBy,
-  getDocs, writeBatch,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Trip, Event, Post, Comment, JoinRequest, ChatMessage, HistoryItem } from "@/types";
@@ -16,11 +16,11 @@ interface DataContextType {
   history: HistoryItem[];
   getUserHistory: (userId: string) => HistoryItem[];
   addTrip: (trip: Trip) => Promise<void>;
+  updateTrip: (tripId: string, updates: Partial<Trip>) => Promise<void>;
+  deleteTrip: (tripId: string) => Promise<void>;
   addEvent: (event: Event) => Promise<void>;
-  joinTrip: (tripId: string, userId: string) => Promise<void>;
-  leaveTrip: (tripId: string, userId: string) => Promise<void>;
-  registerEvent: (eventId: string, userId: string) => Promise<void>;
-  unregisterEvent: (eventId: string, userId: string) => Promise<void>;
+  updateEvent: (eventId: string, updates: Partial<Event>) => Promise<void>;
+  deleteEvent: (eventId: string) => Promise<void>;
   likePost: (postId: string, userId: string) => Promise<void>;
   addPost: (post: Post) => Promise<void>;
   deletePost: (postId: string) => Promise<void>;
@@ -161,12 +161,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await setDoc(doc(db, "trips", trip.id), trip);
   };
 
-  const joinTrip = async (tripId: string, userId: string) => {
-    await updateDoc(doc(db, "trips", tripId), { joinedUsers: arrayUnion(userId) });
+  const updateTrip = async (tripId: string, updates: Partial<Trip>) => {
+    await updateDoc(doc(db, "trips", tripId), updates as Record<string, unknown>);
   };
 
-  const leaveTrip = async (tripId: string, userId: string) => {
-    await updateDoc(doc(db, "trips", tripId), { joinedUsers: arrayRemove(userId) });
+  const deleteTrip = async (tripId: string) => {
+    await deleteDoc(doc(db, "trips", tripId));
   };
 
   // ── Events ────────────────────────────────────────────────────────────────
@@ -174,12 +174,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await setDoc(doc(db, "events", event.id), event);
   };
 
-  const registerEvent = async (eventId: string, userId: string) => {
-    await updateDoc(doc(db, "events", eventId), { attendees: arrayUnion(userId) });
+  const updateEvent = async (eventId: string, updates: Partial<Event>) => {
+    await updateDoc(doc(db, "events", eventId), updates as Record<string, unknown>);
   };
 
-  const unregisterEvent = async (eventId: string, userId: string) => {
-    await updateDoc(doc(db, "events", eventId), { attendees: arrayRemove(userId) });
+  const deleteEvent = async (eventId: string) => {
+    await deleteDoc(doc(db, "events", eventId));
   };
 
   // ── Posts ─────────────────────────────────────────────────────────────────
@@ -201,10 +201,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const addComment = async (postId: string, comment: Comment) => {
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    await updateDoc(doc(db, "posts", postId), {
-      comments: [...post.comments, comment],
+    await runTransaction(db, async (tx) => {
+      const ref  = doc(db, "posts", postId);
+      const snap = await tx.get(ref);
+      if (!snap.exists()) return;
+      const post = snap.data() as Post;
+      tx.update(ref, { comments: [...(post.comments ?? []), comment] });
     });
   };
 
@@ -260,10 +262,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const sendTripMessage = async (tripId: string, message: ChatMessage) => {
-    const trip = trips.find(t => t.id === tripId);
-    if (!trip) return;
-    await updateDoc(doc(db, "trips", tripId), {
-      chatMessages: [...(trip.chatMessages ?? []), message],
+    await runTransaction(db, async (tx) => {
+      const ref  = doc(db, "trips", tripId);
+      const snap = await tx.get(ref);
+      if (!snap.exists()) return;
+      const trip = snap.data() as Trip;
+      tx.update(ref, { chatMessages: [...(trip.chatMessages ?? []), message] });
     });
   };
 
@@ -319,19 +323,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const sendEventMessage = async (eventId: string, message: ChatMessage) => {
-    const event = events.find(e => e.id === eventId);
-    if (!event) return;
-    await updateDoc(doc(db, "events", eventId), {
-      chatMessages: [...(event.chatMessages ?? []), message],
+    await runTransaction(db, async (tx) => {
+      const ref  = doc(db, "events", eventId);
+      const snap = await tx.get(ref);
+      if (!snap.exists()) return;
+      const event = snap.data() as Event;
+      tx.update(ref, { chatMessages: [...(event.chatMessages ?? []), message] });
     });
   };
 
   return (
     <DataContext.Provider value={{
       trips, events, posts, history, getUserHistory,
-      addTrip, addEvent,
-      joinTrip, leaveTrip,
-      registerEvent, unregisterEvent,
+      addTrip, updateTrip, deleteTrip,
+      addEvent, updateEvent, deleteEvent,
       likePost, addPost, deletePost, addComment,
       requestToJoinTrip, approveJoinTrip, rejectJoinTrip, removeFromTrip, sendTripMessage,
       requestToJoinEvent, approveJoinEvent, rejectJoinEvent, removeFromEvent, sendEventMessage,

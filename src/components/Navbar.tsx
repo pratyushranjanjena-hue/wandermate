@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useRef } from "react";
 import { Menu, X, LogOut, User, ChevronDown, Tent, CalendarDays } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useData } from "@/context/DataContext";
 import AuthModal from "./AuthModal";
 import OnboardingModal from "./OnboardingModal";
 import { UserAvatar } from "./AvatarPicker";
@@ -26,6 +27,12 @@ export default function Navbar() {
   const [mobileActivitiesOpen, setMobileActivitiesOpen] = useState(false);
   const activitiesTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { user, logout } = useAuth();
+  const { trips, events } = useData();
+
+  const pendingRequestCount = user
+    ? trips.filter(t => t.hostId === user.id).reduce((acc, t) => acc + (t.pendingRequests ?? []).filter(r => r.status === "pending").length, 0)
+    + events.filter(e => e.hostId === user.id).reduce((acc, e) => acc + (e.pendingRequests ?? []).filter(r => r.status === "pending").length, 0)
+    : 0;
 
   const openLogin = () => { setAuthTab("login"); setShowAuth(true); setOpen(false); };
   const openSignup = () => { setAuthTab("signup"); setShowAuth(true); setOpen(false); };
@@ -119,9 +126,14 @@ export default function Navbar() {
               {user ? (
                 <div className="relative">
                   <button onClick={() => setShowDropdown(!showDropdown)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 hover:border-teal-300 transition-colors">
+                    className="relative flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 hover:border-teal-300 transition-colors">
                     <UserAvatar avatar={user.avatar} size="sm" className="!w-7 !h-7 !text-base" />
                     <span className="text-sm font-semibold text-gray-800">{user.name.split(" ")[0]}</span>
+                    {pendingRequestCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                        {pendingRequestCount}
+                      </span>
+                    )}
                   </button>
                   {showDropdown && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
@@ -140,6 +152,10 @@ export default function Navbar() {
                       <Link href="/trips/new" onClick={() => setShowDropdown(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700">
                         <Tent className="w-4 h-4" /> Host an Activity
+                      </Link>
+                      <Link href="/events/new" onClick={() => setShowDropdown(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700">
+                        <CalendarDays className="w-4 h-4" /> Create an Event
                       </Link>
                       <hr className="my-1 border-gray-100" />
                       <button onClick={() => { logout(); setShowDropdown(false); }}
@@ -161,10 +177,16 @@ export default function Navbar() {
                 </>
               )}
               {user && (
-                <Link href="/trips/new"
-                  className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
-                  + Host an Activity
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link href="/trips/new"
+                    className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
+                    + Host Activity
+                  </Link>
+                  <Link href="/events/new"
+                    className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
+                    + Event
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -220,6 +242,8 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link href="/profile" onClick={() => setOpen(false)} className="block py-2 text-gray-700 font-medium">{user.avatar} {user.name}</Link>
+                <Link href="/trips/new" onClick={() => setOpen(false)} className="block py-2 text-teal-600 font-semibold">+ Host an Activity</Link>
+                <Link href="/events/new" onClick={() => setOpen(false)} className="block py-2 text-purple-600 font-semibold">+ Create an Event</Link>
                 <button onClick={() => { logout(); setOpen(false); }} className="block py-2 text-red-500 font-medium w-full text-left">Sign Out</button>
               </>
             ) : (

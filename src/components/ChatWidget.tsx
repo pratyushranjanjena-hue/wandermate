@@ -86,7 +86,7 @@ const RULES: { keywords: string[]; reply: string }[] = [
   },
   {
     keywords: ["app", "mobile", "android", "ios", "download", "play store", "app store"],
-    reply: "mayBE is currently a web app — works great on mobile browsers! 📱\n\nJust open maybe-orpin.vercel.app in your phone's browser.\n\nA dedicated mobile app (Android & iOS) is on our roadmap. Stay tuned! 🚀",
+    reply: "mayBE is currently a web app — works great on mobile browsers! 📱\n\nJust open wandermate-orpin.vercel.app in your phone's browser.\n\nA dedicated mobile app (Android & iOS) is on our roadmap. Stay tuned! 🚀",
   },
   {
     keywords: ["thank", "thanks", "awesome", "great", "nice", "cool", "good", "perfect"],

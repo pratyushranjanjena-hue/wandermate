@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   MapPin, Calendar, Users, Star, ArrowLeft, CheckCircle,
   Shield, Package, MessageCircle, UserCheck, UserX, Crown,
-  LogOut, Send, Clock, Check, X,
+  LogOut, Send, Clock, Check, X, Pencil, Trash2,
 } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
@@ -21,8 +21,9 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const {
     trips,
     requestToJoinTrip, approveJoinTrip, rejectJoinTrip, removeFromTrip, sendTripMessage,
+    updateTrip, deleteTrip,
   } = useData();
-  const { user } = useAuth();
+  const { user, getUserById } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
 
@@ -30,12 +31,26 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   const [tab, setTab] = useState<Tab>("details");
   const [chatInput, setChatInput] = useState("");
   const chatBottomRef = useRef<HTMLDivElement>(null);
+  const [memberAvatars, setMemberAvatars] = useState<Record<string, string>>({});
+  const [confirmDeleteTrip, setConfirmDeleteTrip] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ title: "", description: "", whatToBring: "", totalSpots: 0, budget: "" });
 
   const trip = trips.find(t => t.id === id);
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [trip?.chatMessages?.length, tab]);
+
+  useEffect(() => {
+    if (!trip) return;
+    Promise.all(trip.joinedUsers.map(uid => getUserById(uid))).then(users => {
+      const map: Record<string, string> = {};
+      users.forEach(u => { if (u) map[u.id] = u.avatar; });
+      setMemberAvatars(map);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trip?.joinedUsers.length]);
 
   if (!trip) return (
     <div className="max-w-2xl mx-auto px-4 py-20 text-center">
@@ -131,6 +146,38 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           {/* ── DETAILS TAB ── */}
           {tab === "details" && (
             <div className="space-y-6">
+              {/* Inline edit form for host */}
+              {editMode && isHost && (
+                <div className="bg-teal-50 border border-teal-200 rounded-2xl p-5 space-y-4">
+                  <h3 className="font-bold text-gray-900 flex items-center gap-2"><Pencil className="w-4 h-4 text-teal-600" /> Edit Trip Details</h3>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">Title</label>
+                    <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1">Budget (e.g. ₹4,500)</label>
+                      <input value={editForm.budget} onChange={e => setEditForm(f => ({ ...f, budget: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1">Total Spots</label>
+                      <input type="number" min={trip.joinedUsers.length} value={editForm.totalSpots} onChange={e => setEditForm(f => ({ ...f, totalSpots: +e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">Description</label>
+                    <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={4} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">What to Bring</label>
+                    <textarea value={editForm.whatToBring} onChange={e => setEditForm(f => ({ ...f, whatToBring: e.target.value }))} rows={2} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 resize-none" />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button onClick={async () => { await updateTrip(trip.id, { title: editForm.title, description: editForm.description, whatToBring: editForm.whatToBring, totalSpots: editForm.totalSpots, budget: editForm.budget }); setEditMode(false); showToast("Trip updated! ✅"); }} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">Save Changes</button>
+                    <button onClick={() => setEditMode(false)} className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 py-2.5 rounded-xl text-sm transition-colors">Cancel</button>
+                  </div>
+                </div>
+              )}
               <div className="h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center text-9xl">
                 {trip.photoUrl
                   // eslint-disable-next-line @next/next/no-img-element
@@ -159,7 +206,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
                     <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-teal-500" /> {trip.destination}, {trip.state}</span>
                   )}
                   <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-teal-500" /> {trip.startDate} → {trip.endDate}</span>
-                  <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-teal-500" /> Hosted by {trip.hostName}</span>
+                  <Link href={`/profile/${trip.hostId}`} className="flex items-center gap-1.5 hover:text-teal-600 transition-colors"><Users className="w-4 h-4 text-teal-500" /> Hosted by {trip.hostName}</Link>
                 </div>
               </div>
 
@@ -182,7 +229,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
               <div className="bg-gray-900 text-white rounded-2xl p-6">
                 <h2 className="font-bold text-lg mb-4 flex items-center gap-2"><Shield className="w-5 h-5 text-teal-500" /> Safety & Trust</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {["Join request approved by host", "Group chat for approved members only", "Host can remove members", "SOS button available in-app", "Host rated by past travelers", "Expense splitting included"].map(s => (
+                  {["Join request approved by host", "Group chat for approved members only", "Host can remove members", "Real user profiles verified at signup", "Host rated by past travelers", "Transparent member list before joining"].map(s => (
                     <div key={s} className="flex items-center gap-2 text-sm text-gray-300">
                       <CheckCircle className="w-4 h-4 text-green-400 shrink-0" /> {s}
                     </div>
@@ -384,8 +431,25 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
             </div>
 
             {isHost && (
-              <div className="text-center text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-xl py-3 flex items-center justify-center gap-2">
-                <Crown className="w-4 h-4" /> You are the host
+              <div className="space-y-2">
+                <div className="text-center text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-xl py-3 flex items-center justify-center gap-2">
+                  <Crown className="w-4 h-4" /> You are the host
+                </div>
+                <button
+                  onClick={() => { setEditForm({ title: trip.title, description: trip.description, whatToBring: trip.whatToBring, totalSpots: trip.totalSpots, budget: trip.budget }); setEditMode(true); setTab("details"); }}
+                  className="w-full flex items-center justify-center gap-2 border border-teal-300 text-teal-700 hover:bg-teal-50 font-semibold py-2 rounded-xl text-sm transition-colors">
+                  <Pencil className="w-4 h-4" /> Edit Trip
+                </button>
+                {confirmDeleteTrip ? (
+                  <div className="flex gap-2">
+                    <button onClick={async () => { await deleteTrip(trip.id); showToast("Trip deleted.", "info"); router.push("/trips"); }} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-xl text-sm transition-colors">Confirm Delete</button>
+                    <button onClick={() => setConfirmDeleteTrip(false)} className="flex-1 border border-gray-200 text-gray-500 hover:bg-gray-50 py-2 rounded-xl text-sm transition-colors">Cancel</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmDeleteTrip(true)} className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-500 hover:bg-red-50 font-semibold py-2 rounded-xl text-sm transition-colors">
+                    <Trash2 className="w-4 h-4" /> Delete Trip
+                  </button>
+                )}
               </div>
             )}
 
@@ -430,15 +494,14 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h3 className="font-semibold text-gray-900 mb-3">Members ({trip.joinedUsers.length}/{trip.totalSpots})</h3>
             <div className="flex flex-wrap gap-2">
-              {trip.joinedUsers.map((uid, i) => {
-                const req = (trip.pendingRequests ?? []).find(r => r.userId === uid);
-                const av = req?.userAvatar ?? ["🧕","👨","👩","🧔","👱‍♀️"][i % 5];
+              {trip.joinedUsers.map(uid => {
+                const av = memberAvatars[uid] ?? "🧑";
                 return (
-                  <div key={uid} className="w-9 h-9 rounded-full bg-teal-100 flex items-center justify-center text-lg overflow-hidden" title={req?.userName}>
-                    {av.length <= 2 ? av : (
+                  <div key={uid} className="w-9 h-9 rounded-full bg-teal-100 flex items-center justify-center text-lg overflow-hidden">
+                    {av.startsWith("http") || av.startsWith("data:") ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={av} alt="" className="w-9 h-9 object-cover" />
-                    )}
+                    ) : av}
                   </div>
                 );
               })}

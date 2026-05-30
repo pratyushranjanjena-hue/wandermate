@@ -243,9 +243,10 @@ function Sidebar() {
   const [allUsers, setAllUsers] = useState<import("@/types").User[]>([]);
 
   useEffect(() => {
-    getAllUsers().then(setAllUsers);
+    if (allUsers.length > 0) return;
+    getAllUsers().then(users => setAllUsers(users.slice(0, 50)));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user?.id]);
 
   if (!user) return null;
 

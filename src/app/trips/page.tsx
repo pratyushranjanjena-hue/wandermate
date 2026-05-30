@@ -363,7 +363,7 @@ function TripsContent() {
                 <div className="p-4">
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                     <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-teal-500" /> {trip.startDate}</span>
-                    <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5 text-teal-500" /> by {trip.hostName}</span>
+                    <Link href={`/profile/${trip.hostId}`} className="flex items-center gap-1 hover:text-teal-600 transition-colors"><Users className="w-3.5 h-3.5 text-teal-500" /> by {trip.hostName}</Link>
                     {trip.rating > 0 && <span className="flex items-center gap-0.5"><Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" /> {trip.rating}</span>}
                   </div>
 

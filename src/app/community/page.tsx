@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, MessageCircle, MapPin, Eye, BookOpen, Image as ImageIcon, Video, Send, PenLine, TrendingUp } from "lucide-react";
+import { Heart, MessageCircle, MapPin, Eye, BookOpen, Image as ImageIcon, Video, Send, PenLine, TrendingUp, Trash2 } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -39,13 +39,15 @@ const typeColor: Record<string, string> = {
 };
 
 function PostCard({ post, onOpenDetail }: { post: Post; onOpenDetail: (p: Post) => void }) {
-  const { likePost, addComment } = useData();
+  const { likePost, addComment, deletePost } = useData();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [showAuth, setShowAuth] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const isOwner = user?.id === post.authorId;
   const liked = user ? post.likes.includes(user.id) : false;
 
   const handleLike = () => {
@@ -89,16 +91,30 @@ function PostCard({ post, onOpenDetail }: { post: Post; onOpenDetail: (p: Post) 
         </button>
 
         <div className="p-4">
-          {/* Author */}
-          <Link href={`/profile/${post.authorId}`} className="flex items-center gap-2.5 mb-3 hover:opacity-80 transition-opacity group/author">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-100 to-teal-300 flex items-center justify-center text-xl border-2 border-white shadow-sm shrink-0">
-              {post.avatar}
-            </div>
-            <div>
-              <p className="text-sm font-bold text-gray-800 group-hover/author:text-teal-600 transition-colors leading-tight">{post.author}</p>
-              <p className="text-xs text-gray-400 flex items-center gap-0.5"><MapPin className="w-3 h-3" /> {post.location}</p>
-            </div>
-          </Link>
+          {/* Author + delete */}
+          <div className="flex items-center justify-between mb-3">
+            <Link href={`/profile/${post.authorId}`} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity group/author">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-100 to-teal-300 flex items-center justify-center text-xl border-2 border-white shadow-sm shrink-0">
+                {post.avatar}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-800 group-hover/author:text-teal-600 transition-colors leading-tight">{post.author}</p>
+                <p className="text-xs text-gray-400 flex items-center gap-0.5"><MapPin className="w-3 h-3" /> {post.location}</p>
+              </div>
+            </Link>
+            {isOwner && (
+              confirmDelete ? (
+                <div className="flex items-center gap-1 shrink-0">
+                  <button onClick={() => { deletePost(post.id); showToast("Post deleted", "info"); }} className="text-xs bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-0.5 rounded-lg">Delete</button>
+                  <button onClick={() => setConfirmDelete(false)} className="text-xs text-gray-400 hover:text-gray-600 px-1">Cancel</button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmDelete(true)} className="text-gray-200 hover:text-red-400 transition-colors shrink-0">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )
+            )}
+          </div>
 
           <button onClick={() => onOpenDetail(post)} className="text-left w-full mb-2">
             <h3 className="font-bold text-gray-900 leading-snug hover:text-teal-700 transition-colors">{post.title}</h3>
@@ -164,7 +180,10 @@ export default function CommunityPage() {
 
   const filtered = posts.filter(p => {
     const matchesTab = activeTab === "All" || p.type === activeTab;
-    const matchesCategory = activeCategory === "All Topics" || p.tags.some(tag => tag.toLowerCase().includes(activeCategory.toLowerCase().split(" ")[0]));
+    const matchesCategory = activeCategory === "All Topics" ||
+      p.tags.some(tag => tag.toLowerCase().includes(activeCategory.toLowerCase())) ||
+      p.title.toLowerCase().includes(activeCategory.toLowerCase()) ||
+      p.location.toLowerCase().includes(activeCategory.toLowerCase());
     return matchesTab && matchesCategory;
   });
 

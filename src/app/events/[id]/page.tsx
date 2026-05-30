@@ -7,7 +7,7 @@ import Image from "next/image";
 import {
   MapPin, Calendar, Users, Ticket, ArrowLeft, CheckCircle,
   Shield, MessageCircle, UserCheck, UserX, Crown,
-  LogOut, Send, Clock, Check, X,
+  LogOut, Send, Clock, Check, X, Pencil, Trash2,
 } from "lucide-react";
 import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
@@ -44,8 +44,9 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const {
     events,
     requestToJoinEvent, approveJoinEvent, rejectJoinEvent, removeFromEvent, sendEventMessage,
+    updateEvent, deleteEvent,
   } = useData();
-  const { user } = useAuth();
+  const { user, getUserById } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
 
@@ -53,12 +54,26 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const [tab, setTab] = useState<Tab>("details");
   const [chatInput, setChatInput] = useState("");
   const chatBottomRef = useRef<HTMLDivElement>(null);
+  const [memberAvatars, setMemberAvatars] = useState<Record<string, string>>({});
+  const [confirmDeleteEvent, setConfirmDeleteEvent] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ title: "", description: "", maxAttendees: 0, price: "" });
 
   const event = events.find(e => e.id === id);
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [event?.chatMessages?.length, tab]);
+
+  useEffect(() => {
+    if (!event) return;
+    Promise.all(event.attendees.map(uid => getUserById(uid))).then(users => {
+      const map: Record<string, string> = {};
+      users.forEach(u => { if (u) map[u.id] = u.avatar; });
+      setMemberAvatars(map);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event?.attendees.length]);
 
   if (!event) return (
     <div className="max-w-2xl mx-auto px-4 py-20 text-center">
@@ -155,6 +170,34 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           {/* ── DETAILS TAB ── */}
           {tab === "details" && (
             <div className="space-y-6">
+              {/* Inline edit form for host */}
+              {editMode && isHost && (
+                <div className="bg-purple-50 border border-purple-200 rounded-2xl p-5 space-y-4">
+                  <h3 className="font-bold text-gray-900 flex items-center gap-2"><Pencil className="w-4 h-4 text-purple-600" /> Edit Event Details</h3>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">Title</label>
+                    <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1">Price (e.g. Free or ₹500)</label>
+                      <input value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 mb-1">Max Attendees</label>
+                      <input type="number" min={event.attendees.length} value={editForm.maxAttendees} onChange={e => setEditForm(f => ({ ...f, maxAttendees: +e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">Description</label>
+                    <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={4} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none" />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button onClick={async () => { await updateEvent(event.id, { title: editForm.title, description: editForm.description, maxAttendees: editForm.maxAttendees, price: editForm.price }); setEditMode(false); showToast("Event updated! ✅"); }} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">Save Changes</button>
+                    <button onClick={() => setEditMode(false)} className="flex-1 border border-gray-200 text-gray-600 hover:bg-gray-50 py-2.5 rounded-xl text-sm transition-colors">Cancel</button>
+                  </div>
+                </div>
+              )}
               <div className="h-64 rounded-2xl overflow-hidden">
                 {event.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -176,7 +219,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-500">
                   <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-purple-500" /> {event.date}</span>
                   <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-purple-500" /> {event.location}</span>
-                  <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-purple-500" /> Hosted by {event.host}</span>
+                  <Link href={`/profile/${event.hostId}`} className="flex items-center gap-1.5 hover:text-purple-600 transition-colors"><Users className="w-4 h-4 text-purple-500" /> Hosted by {event.host}</Link>
                   <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4 text-purple-500" /> {event.price}</span>
                 </div>
               </div>
@@ -191,7 +234,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               <div className="bg-gray-900 text-white rounded-2xl p-6">
                 <h2 className="font-bold text-lg mb-4 flex items-center gap-2"><Shield className="w-5 h-5 text-purple-400" /> Safety & Trust</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {["Join request approved by host", "Group chat for approved members only", "Host can remove members", "Real user profiles", "Host rated by past attendees", "Transparent attendee list"].map(s => (
+                  {["Join request approved by host", "Group chat for approved members only", "Host can remove attendees", "Real user profiles verified at signup", "Host rated by past attendees", "Transparent attendee list before joining"].map(s => (
                     <div key={s} className="flex items-center gap-2 text-sm text-gray-300">
                       <CheckCircle className="w-4 h-4 text-green-400 shrink-0" /> {s}
                     </div>
@@ -379,8 +422,25 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
             </div>
 
             {isHost && (
-              <div className="text-center text-sm font-semibold text-purple-700 bg-purple-50 border border-purple-200 rounded-xl py-3 flex items-center justify-center gap-2">
-                <Crown className="w-4 h-4" /> You are the host
+              <div className="space-y-2">
+                <div className="text-center text-sm font-semibold text-purple-700 bg-purple-50 border border-purple-200 rounded-xl py-3 flex items-center justify-center gap-2">
+                  <Crown className="w-4 h-4" /> You are the host
+                </div>
+                <button
+                  onClick={() => { setEditForm({ title: event.title, description: event.description, maxAttendees: event.maxAttendees, price: event.price }); setEditMode(true); setTab("details"); }}
+                  className="w-full flex items-center justify-center gap-2 border border-purple-300 text-purple-700 hover:bg-purple-50 font-semibold py-2 rounded-xl text-sm transition-colors">
+                  <Pencil className="w-4 h-4" /> Edit Event
+                </button>
+                {confirmDeleteEvent ? (
+                  <div className="flex gap-2">
+                    <button onClick={async () => { await deleteEvent(event.id); showToast("Event deleted.", "info"); router.push("/events"); }} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-xl text-sm transition-colors">Confirm Delete</button>
+                    <button onClick={() => setConfirmDeleteEvent(false)} className="flex-1 border border-gray-200 text-gray-500 hover:bg-gray-50 py-2 rounded-xl text-sm transition-colors">Cancel</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setConfirmDeleteEvent(true)} className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-500 hover:bg-red-50 font-semibold py-2 rounded-xl text-sm transition-colors">
+                    <Trash2 className="w-4 h-4" /> Delete Event
+                  </button>
+                )}
               </div>
             )}
 
@@ -425,15 +485,14 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h3 className="font-semibold text-gray-900 mb-3">Attendees ({event.attendees.length}/{event.maxAttendees})</h3>
             <div className="flex flex-wrap gap-2">
-              {event.attendees.map((uid, i) => {
-                const req = (event.pendingRequests ?? []).find(r => r.userId === uid);
-                const av = req?.userAvatar ?? ["🧕","👨","👩","🧔","👱‍♀️"][i % 5];
+              {event.attendees.map(uid => {
+                const av = memberAvatars[uid] ?? "🧑";
                 return (
-                  <div key={uid} className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-lg overflow-hidden" title={req?.userName}>
-                    {av.length <= 2 ? av : (
+                  <div key={uid} className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-lg overflow-hidden">
+                    {av.startsWith("http") || av.startsWith("data:") ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={av} alt="" className="w-9 h-9 object-cover" />
-                    )}
+                    ) : av}
                   </div>
                 );
               })}

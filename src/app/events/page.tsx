@@ -219,7 +219,7 @@ export default function EventsPage() {
                   <div className="space-y-1.5 mb-3">
                     <p className="text-gray-500 text-sm flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-purple-500" /> {event.date}</p>
                     <p className="text-gray-500 text-sm flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-purple-500" /> {event.location}</p>
-                    <p className="text-gray-500 text-sm flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-purple-500" /> Hosted by {event.host}</p>
+                    <Link href={`/profile/${event.hostId}`} className="text-gray-500 text-sm flex items-center gap-1.5 hover:text-purple-600 transition-colors"><Users className="w-3.5 h-3.5 text-purple-500" /> Hosted by {event.host}</Link>
                   </div>
                   {event.description && <p className="text-gray-400 text-xs mb-3 line-clamp-2 leading-relaxed">{event.description}</p>}
 
