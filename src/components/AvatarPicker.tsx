@@ -79,11 +79,15 @@ export default function AvatarPicker({ current, onChange }: Props) {
     setCompressing(true);
     try {
       const dataUrl = await compressImage(file);
-      // Show local preview immediately
-      setPreview(dataUrl);
-      // Upload to Cloudinary and update with permanent URL
-      const url = await uploadToCloudinary(file, "maybe/avatars");
-      applyPreview(url);
+      // Apply local preview immediately so Save works even if Cloudinary is slow
+      applyPreview(dataUrl);
+      // Upload to Cloudinary in background and update with permanent CDN URL
+      try {
+        const url = await uploadToCloudinary(file, "maybe/avatars");
+        applyPreview(url);
+      } catch {
+        // Cloudinary failed — local preview is still saved, good enough
+      }
     } catch {
       alert("Could not process this image. Please try a different file.");
     } finally {

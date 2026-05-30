@@ -71,9 +71,9 @@ export default function ProfilePage() {
     setEditing(true);
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!form.name.trim()) { showToast("Name cannot be empty", "error"); return; }
-    updateUser({ name: form.name.trim(), city: form.city.trim(), bio: form.bio.trim(), avatar: form.avatar, website: form.website.trim() || undefined });
+    await updateUser({ name: form.name.trim(), city: form.city.trim(), bio: form.bio.trim(), avatar: form.avatar, website: form.website.trim() || undefined });
     setEditing(false);
     showToast("Profile updated!");
   };
@@ -203,7 +203,6 @@ export default function ProfilePage() {
             { label: "Trips", count: myTripsHosted.length + myTripsJoined.length, emoji: "🗺️" },
             { label: "Hosted", count: myTripsHosted.length, emoji: "🏕️" },
             { label: "Events", count: myEvents.length, emoji: "📅" },
-            { label: "Likes", count: totalLikes, emoji: "❤️" },
           ].map(s => (
             <div key={s.label} className="flex flex-col items-center gap-1.5 shrink-0">
               <div className="w-16 h-16 rounded-full border-2 border-teal-400 flex items-center justify-center text-2xl bg-teal-50">
@@ -410,7 +409,7 @@ export default function ProfilePage() {
               ) : followerUsers.map(fu => (
                   <Link key={fu.id} href={`/profile/${fu.id}`} onClick={() => setShowFollowers(false)}
                     className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
-                    <span className="text-3xl">{fu.avatar}</span>
+                    <UserAvatar avatar={fu.avatar} size="sm" />
                     <div>
                       <p className="font-semibold text-sm text-gray-900">{fu.name}</p>
                       <p className="text-xs text-gray-400">{fu.city}</p>
@@ -436,7 +435,7 @@ export default function ProfilePage() {
               ) : followingUsers.map(fu => (
                   <Link key={fu.id} href={`/profile/${fu.id}`} onClick={() => setShowFollowing(false)}
                     className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
-                    <span className="text-3xl">{fu.avatar}</span>
+                    <UserAvatar avatar={fu.avatar} size="sm" />
                     <div>
                       <p className="font-semibold text-sm text-gray-900">{fu.name}</p>
                       <p className="text-xs text-gray-400">{fu.city}</p>
